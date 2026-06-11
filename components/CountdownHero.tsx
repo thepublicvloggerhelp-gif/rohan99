@@ -6,9 +6,9 @@ import { Calendar, Compass, RefreshCw, Zap, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Profile } from '@/types'
 
-// Target date: 14 June 2027 at 00:00:00 India Standard Time (IST)
-// 14 June 2027 00:00:00 IST is 13 June 2027 18:30:00 UTC
-const TARGET_TIME = new Date('2027-06-13T18:30:00Z').getTime()
+// Target date: 14 June 2026 at 00:00:00 India Standard Time (IST)
+// 14 June 2026 00:00:00 IST is 13 June 2026 18:30:00 UTC
+const TARGET_TIME = new Date('2026-06-13T18:30:00Z').getTime()
 // Start date of vacation: 10 May 2026 00:00:00 IST is 09 May 2026 18:30:00 UTC
 const START_TIME = new Date('2026-05-09T18:30:00Z').getTime()
 
@@ -168,7 +168,7 @@ export function CountdownHero({ profile, loading }: { profile: Profile | null; l
       {/* Target Reopening Date Tag */}
       <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/5 border border-brand-500/15 text-brand-500 text-xs font-semibold mb-6 backdrop-blur-sm z-10">
         <Calendar className="w-3.5 h-3.5" />
-        <span>School Reopening – 14 June 2027</span>
+        <span>School Reopening – 14 June 2026</span>
       </div>
 
       {/* Main Heading */}

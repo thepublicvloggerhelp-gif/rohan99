@@ -10,6 +10,7 @@ import { MessageList } from '@/components/chat/MessageList'
 import { MessageInput } from '@/components/chat/MessageInput'
 import { ChannelSidebar } from '@/components/chat/ChannelSidebar'
 import { CHANNEL_ICONS } from '@/lib/utils'
+import { CountdownBanner } from '@/components/chat/CountdownBanner'
 
 export default function ChannelChatPage() {
   const params    = useParams()
@@ -160,6 +161,8 @@ export default function ChannelChatPage() {
             )}
           </div>
         </div>
+
+        {channel?.name === 'general' && <CountdownBanner />}
 
         {/* Pinned messages panel */}
         {showPins && pinned.length > 0 && (
