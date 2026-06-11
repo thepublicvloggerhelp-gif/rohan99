@@ -53,7 +53,29 @@ export default function UploadNotePage() {
       if (!user) { toast.error('Not authenticated'); return }
 
       const fileType = file.type === 'application/pdf' ? 'pdf' : 'image'
-      const uploadPath = `${data.subject}/${Date.now()}_${file.name}`
+      
+      // Sanitize filename on the client side as a double-safety measure
+      const dotIdx = file.name.lastIndexOf('.')
+      let base = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name
+      const ext = dotIdx !== -1 ? file.name.substring(dotIdx + 1) : ''
+      
+      const cleanBase = base
+        .normalize('NFKD')
+        .replace(/[^\x00-\x7F]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9._\-]/g, '')
+        .replace(/\.{2,}/g, '.')
+        .replace(/^[._-]+|[._-]+$/g, '')
+        .substring(0, 80)
+        
+      const cleanExt = ext
+        .normalize('NFKD')
+        .replace(/[^\x00-\x7F]/g, '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .substring(0, 10)
+        
+      const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase
+      const uploadPath = `${data.subject}/${Date.now()}_${safeFileName}`
 
       let fileUrl: string
       try {
