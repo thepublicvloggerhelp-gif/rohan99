@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Send, Image as ImageIcon, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { uploadFile } from '@/lib/upload'
 import { Profile, DirectMessage } from '@/types'
 import { formatMessageTime, getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -120,13 +121,13 @@ export default function DMConversationPage() {
     try {
       let imageUrl: string | null = null
       if (imageFile) {
-        const ext = imageFile.name.split('.').pop()
-        const { data: up, error: upErr } = await supabase.storage
-          .from('chat-images')
-          .upload(`dm/${conversationId}/${Date.now()}.${ext}`, imageFile)
-        if (upErr) { toast.error('Image upload failed'); setSending(false); return }
-        const { data: u } = supabase.storage.from('chat-images').getPublicUrl(up.path)
-        imageUrl = u.publicUrl
+        try {
+          imageUrl = await uploadFile(imageFile, 'chat-images', `dm/${conversationId}/${Date.now()}.${imageFile.name.split('.').pop()}`)
+        } catch (err: any) {
+          toast.error('Image upload failed: ' + err.message)
+          setSending(false)
+          return
+        }
       }
 
       // Use server-side API route to bypass the broken RLS policy on dm_participants

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { Send, Image as ImageIcon, X, Smile, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { uploadFile } from '@/lib/upload'
 import { Profile, Message } from '@/types'
 import { toast } from 'sonner'
 
@@ -65,13 +66,13 @@ export function MessageInput({ channelId, profile, replyTo, onCancelReply, chann
     try {
       let imageUrl: string | null = null
       if (imageFile) {
-        const ext = imageFile.name.split('.').pop()
-        const path = `${channelId}/${Date.now()}.${ext}`
-        const { data: up, error: upErr } = await supabase.storage
-          .from('chat-images').upload(path, imageFile)
-        if (upErr) { toast.error('Image upload failed'); setSending(false); return }
-        const { data: urlData } = supabase.storage.from('chat-images').getPublicUrl(up.path)
-        imageUrl = urlData.publicUrl
+        try {
+          imageUrl = await uploadFile(imageFile, 'chat-images', `${channelId}/${Date.now()}.${imageFile.name.split('.').pop()}`)
+        } catch (err: any) {
+          toast.error('Image upload failed: ' + err.message)
+          setSending(false)
+          return
+        }
       }
 
       const { error } = await supabase.from('messages').insert({

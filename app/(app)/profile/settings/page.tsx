@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
+import { uploadFile } from '@/lib/upload'
 import { Profile } from '@/types'
 import { getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -65,11 +66,13 @@ export default function ProfileSettingsPage() {
       let avatarUrl = profile.avatar_url
 
       if (avatar) {
-        const ext = avatar.name.split('.').pop()
-        const { data: up, error } = await supabase.storage.from('avatars').upload(`${profile.id}/avatar.${ext}`, avatar, { upsert: true })
-        if (!error && up) {
-          const { data: u } = supabase.storage.from('avatars').getPublicUrl(up.path)
-          avatarUrl = u.publicUrl
+        try {
+          const ext = avatar.name.split('.').pop()
+          avatarUrl = await uploadFile(avatar, 'avatars', `${profile.id}/avatar.${ext}`)
+        } catch (err: any) {
+          toast.error('Avatar upload failed: ' + err.message)
+          setSaving(false)
+          return
         }
       }
 

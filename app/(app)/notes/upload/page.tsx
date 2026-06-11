@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, Upload, FileText, X, Loader2, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { uploadFile } from '@/lib/upload'
 import { toast } from 'sonner'
 import { formatFileSize } from '@/lib/utils'
 
@@ -51,20 +52,22 @@ export default function UploadNotePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { toast.error('Not authenticated'); return }
 
-      const ext      = file.name.split('.').pop()
       const fileType = file.type === 'application/pdf' ? 'pdf' : 'image'
-      const path     = `${data.subject}/${Date.now()}_${file.name}`
+      const uploadPath = `${data.subject}/${Date.now()}_${file.name}`
 
-      const { data: up, error: upErr } = await supabase.storage.from('notes').upload(path, file)
-      if (upErr) { toast.error('Upload failed: ' + upErr.message); return }
-
-      const { data: urlData } = supabase.storage.from('notes').getPublicUrl(up.path)
+      let fileUrl: string
+      try {
+        fileUrl = await uploadFile(file, 'notes', uploadPath)
+      } catch (err: any) {
+        toast.error('Upload failed: ' + err.message)
+        return
+      }
 
       const { error: dbErr } = await supabase.from('notes').insert({
         title:       data.title,
         description: data.description ?? null,
         subject:     data.subject,
-        file_url:    urlData.publicUrl,
+        file_url:    fileUrl,
         file_type:   fileType,
         file_size:   file.size,
         uploaded_by: user.id,
