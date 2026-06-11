@@ -15,6 +15,10 @@ const config: Config = {
       screens: { '2xl': '1400px' },
     },
     extend: {
+      borderColor: {
+        DEFAULT: 'rgba(15, 23, 42, 0.09)',
+        white: 'rgba(15, 23, 42, 0.9)',
+      },
       colors: {
         // Inverted slate color family for instant light theme typography
         slate: {
@@ -29,18 +33,18 @@ const config: Config = {
           800: '#e2e8f0', // Slate-200
           900: '#f1f5f9', // Slate-100 (lightest)
         },
-        // Vibrant Blue brand palette
+        // Vibrant Indigo/Purple brand palette
         brand: {
-          50:  '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e40af',
-          800: '#1e3a8a',
-          900: '#172554',
+          50:  '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
         },
         // Light surfaces driven by CSS variables
         surface: {
@@ -77,7 +81,7 @@ const config: Config = {
         'gradient-radial':  'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':   'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'hero-gradient':    'linear-gradient(135deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%)',
-        'brand-gradient':   'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)',
+        'brand-gradient':   'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #818cf8 100%)',
         'card-gradient':    'linear-gradient(135deg, rgba(37,99,241,0.05) 0%, rgba(59,130,246,0.02) 100%)',
         'jee-gradient':     'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
         'neet-gradient':    'linear-gradient(135deg, #10b981 0%, #059669 100%)',

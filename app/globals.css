@@ -23,13 +23,13 @@
     --text-accent:    #2563EB;    /* Primary Blue */
 
     /* Brand */
-    --brand:        #2563EB;      /* Vibrant Blue */
-    --brand-hover:  #1D4ED8;      /* Hover Blue */
-    --brand-light:  rgba(37,99,241,0.06);
+    --brand:        #6366F1;      /* Bold Tech Indigo/Purple */
+    --brand-hover:  #4F46E5;      /* Hover Indigo */
+    --brand-light:  rgba(99, 102, 241, 0.06);
 
     /* Borders */
-    --border:       rgba(15,23,42,0.06);
-    --border-hover: rgba(15,23,42,0.12);
+    --border:       rgba(15, 23, 42, 0.09);
+    --border-hover: rgba(15, 23, 42, 0.15);
 
     /* Frosted Glass */
     --glass-bg:       rgba(255,255,255,0.7);
@@ -71,29 +71,28 @@
 
   /* Selection */
   ::selection {
-    background: rgba(37, 99, 241, 0.15);
+    background: rgba(99, 102, 241, 0.15);
     color: #0F172A;
   }
 }
 
 @layer components {
-  /* Glassmorphism card */
+  /* Clean Apple-style cards with solid thin borders */
   .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    border-radius: var(--radius);
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300;
+    @apply glass-card transition-all duration-200;
   }
   .glass-card-hover:hover {
-    background: var(--glass-bg-hover);
-    border-color: rgba(37, 99, 241, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: #ffffff;
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-1.5px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   /* Sidebar item */
@@ -105,8 +104,8 @@
     @apply text-slate-200 bg-slate-900/[0.04];
   }
   .sidebar-item.active {
-    @apply text-brand-500 bg-brand-500/10 font-semibold;
-    box-shadow: inset 0 0 0 1px rgba(37, 99, 241, 0.2);
+    @apply text-slate-900 bg-brand-100 font-bold border-2 border-slate-900;
+    box-shadow: 2px 2px 0px 0px #0F172A;
   }
 
   /* Channel item */
@@ -118,7 +117,7 @@
     @apply text-slate-200 bg-slate-900/[0.04];
   }
   .channel-item.active {
-    @apply text-brand-500 bg-brand-500/[0.08] font-semibold;
+    @apply text-[#6366F1] bg-brand-50/80 font-bold border border-[#6366F1]/30;
   }
 
   /* Message */
@@ -140,67 +139,66 @@
     box-shadow: 0 0 0 4px rgba(37, 99, 241, 0.08);
   }
 
-  /* Button variants */
+  /* Solid colored buttons with thick borders and solid offset shadows */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
-           bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-sm
-           transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
-    box-shadow: 0 4px 15px rgba(37, 99, 241, 0.25);
+    @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl
+           bg-[#6366F1] text-white font-bold text-sm border-2 border-[#0F172A]
+           transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    box-shadow: 3px 3px 0px 0px #0F172A;
   }
   .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 6px 20px rgba(37, 99, 241, 0.35);
-    transform: translateY(-1.5px);
+    @apply -translate-x-[1px] -translate-y-[1px];
+    box-shadow: 4px 4px 0px 0px #0F172A;
   }
 
   .btn-secondary {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
-           bg-white hover:bg-slate-50 border border-slate-200
-           text-slate-200 font-semibold text-sm
-           transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl
+           bg-white text-[#0F172A] font-bold text-sm border-2 border-[#0F172A]
+           transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    box-shadow: 3px 3px 0px 0px #0F172A;
   }
   .btn-secondary:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-    transform: translateY(-1px);
+    @apply -translate-x-[1px] -translate-y-[1px] bg-slate-50;
+    box-shadow: 4px 4px 0px 0px #0F172A;
   }
 
   .btn-ghost {
-    @apply flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+    @apply flex items-center justify-center gap-2 px-3 py-2 rounded-xl
            text-slate-400 hover:text-slate-100 hover:bg-slate-900/[0.04]
-           text-sm font-medium transition-all duration-150 active:scale-95;
+           text-sm font-semibold transition-all duration-150 active:scale-95;
   }
 
   .btn-danger {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
-           bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold text-sm
-           transition-all duration-200 active:scale-95 disabled:opacity-50;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+    @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl
+           bg-red-500 text-white font-bold text-sm border-2 border-[#0F172A]
+           transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    box-shadow: 3px 3px 0px 0px #0F172A;
   }
   .btn-danger:hover:not(:disabled) {
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
-    transform: translateY(-1.5px);
+    @apply -translate-x-[1px] -translate-y-[1px] bg-red-600;
+    box-shadow: 4px 4px 0px 0px #0F172A;
   }
 
   .btn-success {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
-           bg-gradient-to-r from-emerald-600 to-green-500 text-white font-semibold text-sm
-           transition-all duration-200 active:scale-95 disabled:opacity-50;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl
+           bg-emerald-500 text-white font-bold text-sm border-2 border-[#0F172A]
+           transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    box-shadow: 3px 3px 0px 0px #0F172A;
   }
   .btn-success:hover:not(:disabled) {
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-    transform: translateY(-1.5px);
+    @apply -translate-x-[1px] -translate-y-[1px] bg-emerald-600;
+    box-shadow: 4px 4px 0px 0px #0F172A;
   }
 
   .btn-premium {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
-           bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold text-sm
-           transition-all duration-200 active:scale-95 disabled:opacity-50;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+    @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl
+           bg-purple-500 text-white font-bold text-sm border-2 border-[#0F172A]
+           transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    box-shadow: 3px 3px 0px 0px #0F172A;
   }
   .btn-premium:hover:not(:disabled) {
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
-    transform: translateY(-1.5px);
+    @apply -translate-x-[1px] -translate-y-[1px] bg-purple-600;
+    box-shadow: 4px 4px 0px 0px #0F172A;
   }
 
   /* Badge */
