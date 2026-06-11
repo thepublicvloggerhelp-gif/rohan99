@@ -64,13 +64,13 @@ export default function AboutPage() {
         {loading ? (
           <div className="w-full space-y-8">
             <div className="space-y-4">
-              <div className="h-6 w-32 bg-white/[0.04] rounded shimmer" />
+              <div className="h-6 w-32 bg-slate-200 rounded shimmer" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-2xl shimmer" />)}
               </div>
             </div>
             <div className="space-y-4">
-              <div className="h-6 w-32 bg-white/[0.04] rounded shimmer" />
+              <div className="h-6 w-32 bg-slate-200 rounded shimmer" />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl shimmer" />)}
               </div>
@@ -89,8 +89,8 @@ export default function AboutPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {admins.map(admin => (
-                    <div key={admin.id} className="glass-card rounded-2xl p-4 flex gap-4 items-start border-yellow-500/20 bg-gradient-to-br from-yellow-500/[0.03] to-transparent">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-xl font-bold text-yellow-400 border border-yellow-500/30">
+                    <div key={admin.id} className="glass-card rounded-2xl p-5 flex gap-4 items-start border-yellow-500/30 bg-gradient-to-br from-yellow-500/[0.04] to-transparent shadow-md hover:shadow-lg transition-all duration-300">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-xl font-black text-yellow-600 border border-yellow-500/30">
                         {admin.avatar_url ? (
                           <Image src={admin.avatar_url} alt={admin.full_name} width={64} height={64} className="object-cover" />
                         ) : (
@@ -99,11 +99,11 @@ export default function AboutPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-slate-200 text-sm md:text-base truncate">{admin.full_name}</h3>
-                          <span className="text-[10px] font-bold bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                          <h3 className="font-extrabold text-slate-800 text-sm md:text-base truncate">{admin.full_name}</h3>
+                          <span className="text-[10px] font-extrabold bg-yellow-100 border border-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">@{admin.username} · {admin.stream}</p>
-                        <p className="text-xs text-slate-400 mt-2 leading-relaxed italic bg-white/[0.02] p-2 rounded-xl border border-white/[0.04] min-h-[40px]">
+                        <p className="text-xs text-slate-500 font-semibold mt-0.5">@{admin.username} · {admin.stream}</p>
+                        <p className="text-xs text-slate-700 mt-2 leading-relaxed italic bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 min-h-[40px]">
                           {admin.bio ? admin.bio : "No bio added yet."}
                         </p>
                       </div>
@@ -125,24 +125,26 @@ export default function AboutPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {members.map(member => (
-                    <div key={member.id} className="glass-card rounded-2xl p-4 flex flex-col items-center text-center border-white/[0.06] bg-gradient-to-b from-white/[0.01] to-transparent hover:border-brand-500/20 hover:bg-white/[0.02] transition-all duration-300">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-lg font-bold text-brand-400 border border-white/10 mb-3">
+                    <div key={member.id} className="glass-card rounded-2xl p-5 flex flex-col items-center text-center border-slate-200 bg-gradient-to-b from-slate-50 to-transparent hover:border-brand-500/30 hover:shadow-md transition-all duration-300">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-lg font-extrabold text-brand-600 border border-slate-200 mb-3">
                         {member.avatar_url ? (
                           <Image src={member.avatar_url} alt={member.full_name} width={56} height={56} className="object-cover" />
                         ) : (
                           getInitials(member.full_name)
                         )}
                       </div>
-                      <h3 className="font-semibold text-slate-200 text-sm truncate w-full">{member.full_name}</h3>
-                      <p className="text-[10px] text-slate-500 mt-0.5">@{member.username}</p>
+                      <h3 className="font-extrabold text-slate-800 text-sm truncate w-full">{member.full_name}</h3>
+                      <p className="text-[10px] text-slate-500 font-semibold mt-0.5">@{member.username}</p>
                       
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mt-2 ${
-                        member.stream === 'JEE' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full mt-2 border ${
+                        member.stream === 'JEE' 
+                          ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       }`}>
                         {member.stream} Aspirant
                       </span>
 
-                      <p className="text-[11px] text-slate-400 mt-3 leading-relaxed italic bg-white/[0.02] p-2 rounded-xl border border-white/[0.04] w-full min-h-[44px] flex items-center justify-center">
+                      <p className="text-[11px] text-slate-700 mt-3 leading-relaxed italic bg-slate-50 p-2 rounded-xl border border-slate-200/60 w-full min-h-[44px] flex items-center justify-center">
                         {member.bio ? `"${member.bio}"` : "Studying hard!"}
                       </p>
                     </div>

@@ -50,14 +50,15 @@ export default function NotesPage() {
   return (
     <div className="overflow-y-auto scroll-area h-full p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Header Banner */}
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-3xl p-6 shadow-md mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="absolute right-32 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">📚</div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-100">Study Notes</h1>
-            <p className="text-slate-400 text-sm mt-0.5">Share and download notes</p>
+            <h1 className="text-3xl font-extrabold tracking-tight mb-1">Study Notes Library</h1>
+            <p className="text-emerald-50 text-sm max-w-md">Upload and download community-curated prep material. Filter by subject to find exactly what you need.</p>
           </div>
-          <Link href="/notes/upload" id="upload-notes-btn" className="btn-primary text-sm">
-            <Upload className="w-4 h-4" /> Upload
+          <Link href="/notes/upload" id="upload-notes-btn" className="btn-premium px-5 py-3 rounded-2xl bg-white text-emerald-600 font-bold text-sm hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 self-start md:self-center shadow-lg shadow-emerald-950/10">
+            <Upload className="w-4 h-4 text-emerald-600" /> Upload Notes
           </Link>
         </div>
 
@@ -78,10 +79,10 @@ export default function NotesPage() {
                 key={s}
                 onClick={() => setSubject(s)}
                 id={`notes-filter-${s}`}
-                className={cn('px-3 py-2 rounded-xl text-xs font-semibold border transition-all',
+                className={cn('px-4 py-2 rounded-2xl text-xs font-bold transition-all border shadow-sm',
                   subject === s
-                    ? 'bg-brand-500/20 border-brand-500/40 text-brand-300'
-                    : 'border-white/10 text-slate-400 hover:border-white/20'
+                    ? 'bg-emerald-600 border-emerald-700 text-white shadow-emerald-500/20 shadow-md'
+                    : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
                 )}
               >
                 {s}

@@ -46,13 +46,12 @@ export default function LeaderboardPage() {
   return (
     <div className="overflow-y-auto scroll-area h-full p-6">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-yellow-500/20 border border-yellow-500/30 mb-4">
-            <Trophy className="w-8 h-8 text-yellow-400" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-100">Leaderboard</h1>
-          <p className="text-slate-400 text-sm mt-1">Ranked by total test score</p>
+        {/* Header Banner */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-3xl p-6 shadow-md mb-8 relative overflow-hidden text-center">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">🏆</div>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">👑</div>
+          <h1 className="text-3xl font-extrabold tracking-tight mb-1">Weekly Leaderboard</h1>
+          <p className="text-purple-100 text-sm max-w-md mx-auto">Ranked by total practice test scores. Participate in more tests to climb the community rank and lock in your JEE/NEET prep podium!</p>
         </div>
 
         {/* Tabs */}
@@ -63,10 +62,10 @@ export default function LeaderboardPage() {
               id={`leaderboard-tab-${t.value}`}
               onClick={() => setTab(t.value)}
               className={cn(
-                'px-5 py-2 rounded-xl text-sm font-semibold border transition-all',
+                'px-5 py-2 rounded-2xl text-xs font-bold transition-all border shadow-sm',
                 tab === t.value
-                  ? 'bg-brand-500/20 border-brand-500/40 text-brand-300'
-                  : 'border-white/10 text-slate-400 hover:border-white/20'
+                  ? 'bg-purple-600 border-purple-700 text-white shadow-purple-500/20 shadow-md'
+                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
               )}
             >
               {t.label}
@@ -80,23 +79,23 @@ export default function LeaderboardPage() {
             {[ranked[1], ranked[0], ranked[2]].map((e, i) => (
               <div key={e.user_id} className={cn('flex flex-col items-center gap-2', i === 1 ? 'order-first' : i === 0 ? 'order-2' : 'order-last')}>
                 <div className={cn('relative', i === 0 ? 'scale-110' : '')}>
-                  <div className={cn('w-14 h-14 rounded-full overflow-hidden border-2 flex items-center justify-center font-bold',
-                    i === 0 ? 'border-yellow-400 bg-yellow-500/20 text-yellow-300' :
-                    i === 1 ? 'border-slate-400 bg-surface-4 text-slate-300' :
-                              'border-amber-600 bg-amber-500/10 text-amber-400'
+                  <div className={cn('w-14 h-14 rounded-full overflow-hidden border-2 flex items-center justify-center font-bold shadow-md',
+                    i === 0 ? 'border-yellow-400 bg-yellow-100 text-yellow-700' :
+                    i === 1 ? 'border-slate-400 bg-slate-100 text-slate-700' :
+                              'border-amber-600 bg-amber-100 text-amber-800'
                   )}>
                     {e.avatar_url
                       ? <Image src={e.avatar_url} alt="" width={56} height={56} className="object-cover" />
                       : <span>{getInitials(e.full_name)}</span>}
                   </div>
-                  {i === 0 && <Crown className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-yellow-400" />}
+                  {i === 0 && <Crown className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-yellow-500 drop-shadow-md" />}
                 </div>
-                <p className="text-xs font-semibold text-slate-300 truncate max-w-[80px] text-center">{e.username}</p>
-                <p className="text-sm font-bold text-slate-200">{e.total_score}</p>
-                <div className={cn('w-full h-12 rounded-t-lg flex items-center justify-center text-lg font-black',
-                  i === 0 ? 'bg-yellow-500/20 text-yellow-400 h-16' :
-                  i === 1 ? 'bg-slate-500/20 text-slate-300' :
-                            'bg-amber-600/20 text-amber-400 h-10'
+                <p className="text-xs font-extrabold text-slate-800 truncate max-w-[80px] text-center">{e.username}</p>
+                <p className="text-sm font-black text-slate-900">{e.total_score}</p>
+                <div className={cn('w-full h-12 rounded-t-2xl flex items-center justify-center text-lg font-black shadow-inner border-t',
+                  i === 0 ? 'bg-yellow-100/70 border-yellow-200 text-yellow-800 h-16' :
+                  i === 1 ? 'bg-slate-100/70 border-slate-200 text-slate-700' :
+                            'bg-amber-100/70 border-amber-200 text-amber-800 h-10'
                 )}>
                   #{i === 0 ? 1 : i === 1 ? 2 : 3}
                 </div>

@@ -84,16 +84,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             : '-translate-x-full lg:w-[72px] lg:translate-x-0'
         )}>
           {/* Column 1: Icon Rail (72px wide) */}
-          <div className="flex flex-col w-[72px] border-r border-white/[0.06] h-full flex-shrink-0">
+          <div className="flex flex-col w-[72px] border-r border-[#1e293b]/30 bg-[#0B0F19] h-full flex-shrink-0">
             {/* Logo */}
-            <div className="flex items-center justify-center h-16 border-b border-white/[0.06]">
+            <div className="flex items-center justify-center h-16 border-b border-[#1e293b]/30">
               <Link href="/chat" id="logo-link" className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-brand-500/30 hover:border-brand-500/50 bg-[#111111] transition-all">
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
               </Link>
             </div>
 
             {/* Nav icons */}
-            <nav className="flex flex-col items-center gap-1 p-2 flex-1">
+            <nav className="flex flex-col items-center gap-1.5 p-2 flex-1">
               {NAV.map(item => (
                 <Link
                   key={item.href}
@@ -104,17 +104,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     'group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200',
                     isActive(item.href)
-                      ? 'bg-brand-500/20 text-brand-400'
-                      : 'text-slate-500 hover:bg-white/[0.06] hover:text-slate-200'
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/35'
+                      : 'text-slate-400 hover:bg-white/[0.08] hover:text-white'
                   )}
                 >
                   <item.icon className="w-5 h-5" />
                   {/* Active indicator */}
                   {isActive(item.href) && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[2px] w-1 h-6 bg-brand-400 rounded-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-cyan-400 rounded-r-md" />
                   )}
                   {/* Tooltip */}
-                  <div className="absolute left-14 px-2 py-1 bg-surface-4 border border-white/10 rounded-lg text-xs text-slate-200 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+                  <div className="absolute left-16 px-2.5 py-1.5 bg-[#0F172A]/95 border border-slate-700/60 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl">
                     {item.label}
                   </div>
                 </Link>
@@ -130,12 +130,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     'group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200 mt-1',
                     pathname.startsWith('/admin')
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'text-slate-500 hover:bg-white/[0.06] hover:text-slate-200'
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/35'
+                      : 'text-slate-400 hover:bg-white/[0.08] hover:text-white'
                   )}
                 >
                   <ShieldCheck className="w-5 h-5" />
-                  <div className="absolute left-14 px-2 py-1 bg-surface-4 border border-white/10 rounded-lg text-xs text-slate-200 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+                  <div className="absolute left-16 px-2.5 py-1.5 bg-[#0F172A]/95 border border-slate-700/60 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl">
                     Admin
                   </div>
                 </Link>
@@ -143,7 +143,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </nav>
 
             {/* Bottom: notifications + avatar */}
-            <div className="flex flex-col items-center gap-2 p-3 border-t border-white/[0.06]">
+            <div className="flex flex-col items-center gap-2.5 p-3 border-t border-[#1e293b]/30">
               <NotificationBell />
               <Link
                 href={`/profile/${profile?.id}`}
@@ -151,7 +151,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 title="My Profile"
                 className="group relative flex items-center justify-center"
               >
-                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/10 hover:border-brand-500/50 transition-colors bg-surface-4">
+                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/15 hover:border-brand-400 transition-colors bg-[#1E293B]">
                   {profile?.avatar_url ? (
                     <Image src={profile.avatar_url} alt="Avatar" width={36} height={36} className="object-cover" />
                   ) : (
@@ -161,7 +161,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   )}
                 </div>
               </Link>
-              <button onClick={signOut} id="signout-btn" title="Sign out" className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-150">
+              <button onClick={signOut} id="signout-btn" title="Sign out" className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/20 transition-all duration-150">
                 <LogOut className="w-4 h-4" />
               </button>
             </div>

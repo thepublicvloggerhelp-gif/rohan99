@@ -56,10 +56,11 @@ export default function TestsPage() {
   return (
     <div className="flex-1 overflow-y-auto scroll-area p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-100 mb-1">Tests</h1>
-          <p className="text-slate-400 text-sm">Chapter-wise MCQ tests with instant results</p>
+        {/* Header Banner */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-3xl p-6 shadow-brand/10 shadow-lg mb-8 relative overflow-hidden">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">🎯</div>
+          <h1 className="text-3xl font-extrabold tracking-tight mb-2">Chapter-wise Practice Tests</h1>
+          <p className="text-blue-100 text-sm max-w-md">Mock tests styled for JEE and NEET prep with real-time feedback, detailed marking schemes, and performance analysis.</p>
         </div>
 
         {/* Stats */}
@@ -78,19 +79,25 @@ export default function TestsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 items-center mb-6">
           {STREAMS.map(s => (
             <button key={s} onClick={() => setStream(s)} id={`filter-stream-${s}`}
-              className={cn('px-3 py-1.5 rounded-full text-xs font-semibold border transition-all',
-                stream === s ? 'bg-brand-500/20 border-brand-500/40 text-brand-300' : 'border-white/10 text-slate-400 hover:border-white/20')}>
+              className={cn('px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm border',
+                stream === s 
+                  ? 'bg-brand-500 border-brand-600 text-white shadow-brand/20' 
+                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
+              )}>
               {s}
             </button>
           ))}
-          <div className="w-px bg-white/10 mx-1" />
+          <div className="h-6 w-px bg-slate-200 mx-2" />
           {SUBJECTS.map(s => (
             <button key={s} onClick={() => setSubject(s)} id={`filter-subject-${s}`}
-              className={cn('px-3 py-1.5 rounded-full text-xs font-semibold border transition-all',
-                subject === s ? 'bg-brand-500/20 border-brand-500/40 text-brand-300' : 'border-white/10 text-slate-400 hover:border-white/20')}>
+              className={cn('px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm border',
+                subject === s 
+                  ? 'bg-brand-500 border-brand-600 text-white shadow-brand/20' 
+                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
+              )}>
               {s}
             </button>
           ))}
@@ -121,7 +128,7 @@ export default function TestsPage() {
                     <p className="text-xs text-slate-500 mt-0.5">{test.subject} · {test.chapter}</p>
                   </div>
                   {attemptMap[test.id] && (
-                    <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full shadow-sm">
                       Done ×{attemptMap[test.id]}
                     </span>
                   )}
