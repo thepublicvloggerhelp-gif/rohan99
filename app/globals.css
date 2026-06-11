@@ -267,4 +267,27 @@
                 linear-gradient(135deg, rgba(99,102,241,0.4), rgba(139,92,246,0.4)) border-box;
     border: 1px solid transparent;
   }
+
+  /* Constant professional animation for Logo */
+  @keyframes logo-float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  @keyframes logo-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.4)) brightness(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.75)) brightness(1.1);
+    }
+  }
+
+  .animate-logo {
+    animation: logo-float 4s ease-in-out infinite, logo-glow 3s ease-in-out infinite;
+  }
 }

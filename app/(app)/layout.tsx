@@ -86,8 +86,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col w-[72px] border-r border-white/[0.06] h-full flex-shrink-0">
             {/* Logo */}
             <div className="flex items-center justify-center h-16 border-b border-white/[0.06]">
-              <Link href="/chat" id="logo-link" className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 hover:bg-brand-500/30 transition-colors">
-                <Zap className="w-5 h-5 text-brand-400" />
+              <Link href="/chat" id="logo-link" className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-brand-500/30 hover:border-brand-500/50 bg-[#111111] transition-all">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
               </Link>
             </div>
 
@@ -205,7 +205,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {sideOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-brand-400" />
+              <div className="w-7 h-7 rounded-full overflow-hidden border border-brand-500/30 bg-[#111111]">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
+              </div>
               <span className="font-bold text-slate-100">YPSdudes</span>
             </div>
             <div className="w-9" />

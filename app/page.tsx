@@ -80,8 +80,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 w-full glass-card border-b border-white/[0.04] bg-[#0a0a0f]/60 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center group-hover:bg-brand-500/30 transition-colors">
-              <Zap className="w-5 h-5 text-brand-400 group-hover:scale-110 transition-transform" />
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-brand-500/30 flex items-center justify-center bg-[#111111] transition-all">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
             </div>
             <span className="font-bold text-xl tracking-tight text-white group-hover:text-brand-300 transition-colors">YPSdudes</span>
           </Link>

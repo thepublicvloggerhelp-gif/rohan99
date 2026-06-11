@@ -55,8 +55,8 @@ function LoginForm() {
     >
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-500/20 border border-brand-500/30 mb-4 shadow-brand">
-          <Zap className="w-8 h-8 text-brand-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full overflow-hidden border border-brand-500/30 mb-4 shadow-brand bg-[#111111] transition-all">
+          <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
         </div>
         <h1 className="text-3xl font-bold gradient-text">YPSdudes</h1>
         <p className="text-slate-400 text-sm mt-1">JEE & NEET Community · YPS Rajnandgaon</p>
