@@ -3,6 +3,40 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
+/**
+ * Sanitizes a storage key/path so it only contains safe characters.
+ * Strips unicode, replaces spaces, removes sequences Supabase/S3 rejects.
+ * Sanitizes the base name and extension separately to preserve the file extension.
+ */
+function sanitizeKey(rawPath: string): string {
+  return rawPath
+    .split('/')
+    .map(segment => {
+      const dotIdx = segment.lastIndexOf('.')
+      let base = dotIdx !== -1 ? segment.substring(0, dotIdx) : segment
+      const ext = dotIdx !== -1 ? segment.substring(dotIdx + 1) : ''
+
+      base = base
+        .normalize('NFKD')
+        .replace(/[^\x00-\x7F]/g, '')   // strip non-ASCII
+        .replace(/\s+/g, '_')            // spaces → underscores
+        .replace(/[^a-zA-Z0-9._\-]/g, '') // keep only safe chars
+        .replace(/\.{2,}/g, '.')          // collapse multiple dots
+        .replace(/^[._-]+|[._-]+$/g, '') // trim leading/trailing punctuation
+        .substring(0, 80)               // limit base name length to 80
+
+      const cleanExt = ext
+        .normalize('NFKD')
+        .replace(/[^\x00-\x7F]/g, '')
+        .replace(/[^a-zA-Z0-9]/g, '')   // extensions should be purely alphanumeric
+        .substring(0, 10)
+
+      return cleanExt ? `${base}.${cleanExt}` : base
+    })
+    .filter(Boolean)
+    .join('/')
+}
+
 // Admin client — bypasses RLS (server-side only)
 const adminSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,9 +102,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `File type not allowed: ${file.type}` }, { status: 400 })
     }
 
-    // Build storage path
+    // Build & sanitize storage path
     const ext = file.name.split('.').pop() ?? 'bin'
-    const uploadPath = path ?? `${user.id}/${Date.now()}.${ext}`
+    const rawPath = path ?? `${user.id}/${Date.now()}.${ext}`
+    const uploadPath = sanitizeKey(rawPath)
+
+    if (!uploadPath) {
+      return NextResponse.json({ error: 'Invalid file name' }, { status: 400 })
+    }
 
     // Upload using admin key (bypasses storage RLS)
     const arrayBuffer = await file.arrayBuffer()
