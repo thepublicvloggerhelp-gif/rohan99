@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Search, Plus, MessageSquare } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { Profile, DMConversation } from '@/types'
-import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
+import { Profile } from '@/types'
+import { formatRelativeTime, getInitials } from '@/lib/utils'
 import { NewDMModal } from '@/components/chat/NewDMModal'
 
 export default function DMIndexPage() {
@@ -15,32 +15,67 @@ export default function DMIndexPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [query, setQuery] = useState('')
   const [showNew, setShowNew] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      if (prof) setProfile(prof)
+      try {
+        setLoading(true)
+        setError(null)
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
 
-      const { data: parts } = await supabase
-        .from('dm_participants')
-        .select(`conversation_id, dm_conversations(id, created_at)`)
-        .eq('user_id', user.id)
+        const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+        if (prof) setProfile(prof)
 
-      if (!parts) return
-      const convIds = parts.map((p: any) => p.conversation_id)
+        // Step 1: Get conversation IDs for this user (simple query, no joins)
+        const { data: myParts, error: partsErr } = await supabase
+          .from('dm_participants')
+          .select('conversation_id')
+          .eq('user_id', user.id)
 
-      const convData = await Promise.all(convIds.map(async (cid: string) => {
-        const [{ data: participants }, { data: lastMsg }] = await Promise.all([
-          supabase.from('dm_participants').select('*, user:profiles(*)').eq('conversation_id', cid),
-          supabase.from('direct_messages').select('*, sender:profiles!sender_id(username)').eq('conversation_id', cid).order('created_at', { ascending: false }).limit(1).single(),
-        ])
-        const other = participants?.find((p: any) => p.user_id !== user.id)
-        return { id: cid, other: other?.user, lastMsg }
-      }))
+        if (partsErr) { setError(partsErr.message); return }
+        if (!myParts || myParts.length === 0) { setLoading(false); return }
 
-      setConversations(convData.filter(c => c.other))
+        const convIds = myParts.map((p: any) => p.conversation_id)
+
+        // Step 2: For each conversation, get the other participant's user_id (simple query)
+        const convData = await Promise.all(convIds.map(async (cid: string) => {
+          // Get all participant user_ids for this conversation
+          const { data: allParts } = await supabase
+            .from('dm_participants')
+            .select('user_id')
+            .eq('conversation_id', cid)
+
+          const otherUserId = allParts?.find((p: any) => p.user_id !== user.id)?.user_id
+          if (!otherUserId) return null
+
+          // Step 3: Fetch the other user's profile separately
+          const { data: otherProfile } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url, stream')
+            .eq('id', otherUserId)
+            .single()
+
+          // Step 4: Fetch the last message for this conversation
+          const { data: lastMsg } = await supabase
+            .from('direct_messages')
+            .select('content, created_at, sender_id')
+            .eq('conversation_id', cid)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          return { id: cid, other: otherProfile, lastMsg }
+        }))
+
+        setConversations(convData.filter(Boolean))
+      } catch (err: any) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
@@ -71,10 +106,24 @@ export default function DMIndexPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto scroll-area p-2">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-red-400 text-sm px-4">
+              <p className="font-medium">Error loading messages</p>
+              <p className="text-xs mt-1 text-slate-500">{error}</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm">
               <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              No conversations yet
+              <p>No conversations yet</p>
+              <button onClick={() => setShowNew(true)} className="btn-primary mt-4 text-xs">Start a conversation</button>
             </div>
           ) : (
             filtered.map(conv => (
@@ -87,7 +136,7 @@ export default function DMIndexPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-slate-200 text-sm truncate">{conv.other?.username}</p>
-                  <p className="text-xs text-slate-500 truncate">{conv.lastMsg?.content ?? 'No messages yet'}</p>
+                  <p className="text-xs text-slate-500 truncate">{conv.lastMsg?.content?.trim() || 'No messages yet'}</p>
                 </div>
                 {conv.lastMsg && (
                   <span className="text-[10px] text-slate-600 flex-shrink-0">
