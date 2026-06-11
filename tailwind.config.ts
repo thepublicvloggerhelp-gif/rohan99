@@ -16,45 +16,58 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // YPSdudes brand palette
-        brand: {
-          50:  '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+        // Inverted slate color family for instant light theme typography
+        slate: {
+          50:  '#0f172a', // Slate-900 (darkest)
+          100: '#0f172a',
+          200: '#1e293b', // Slate-800
+          300: '#334155', // Slate-700
+          400: '#475569', // Slate-600
+          500: '#64748b', // Slate-500
+          600: '#94a3b8', // Slate-400
+          700: '#cbd5e1', // Slate-300
+          800: '#e2e8f0', // Slate-200
+          900: '#f1f5f9', // Slate-100 (lightest)
         },
-        // Discord-inspired dark backgrounds
+        // Vibrant Blue brand palette
+        brand: {
+          50:  '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#2563eb',
+          600: '#1d4ed8',
+          700: '#1e40af',
+          800: '#1e3a8a',
+          900: '#172554',
+        },
+        // Light surfaces driven by CSS variables
         surface: {
-          1: '#0a0a0f',
-          2: '#111118',
-          3: '#16161f',
-          4: '#1c1c28',
-          5: '#22223a',
-          6: '#2a2a45',
+          1: 'var(--bg-primary)',
+          2: 'var(--bg-secondary)',
+          3: 'var(--bg-tertiary)',
+          4: 'var(--bg-card)',
+          5: 'var(--bg-elevated)',
+          6: 'var(--bg-elevated-hover)',
         },
         glass: {
-          DEFAULT: 'rgba(255,255,255,0.05)',
-          hover:   'rgba(255,255,255,0.08)',
-          border:  'rgba(255,255,255,0.08)',
+          DEFAULT: 'var(--glass-bg)',
+          hover:   'var(--glass-bg-hover)',
+          border:  'var(--glass-border)',
         },
         // Semantic
         accent: {
-          purple: '#6366f1',
-          blue:   '#3b82f6',
-          green:  '#22c55e',
+          purple: '#8b5cf6',
+          blue:   '#2563eb',
+          green:  '#10b981',
           red:    '#ef4444',
           yellow: '#f59e0b',
           pink:   '#ec4899',
         },
         // Stream colors
-        jee:  '#6366f1',
-        neet: '#22c55e',
+        jee:  '#2563eb',
+        neet: '#10b981',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
@@ -63,11 +76,11 @@ const config: Config = {
       backgroundImage: {
         'gradient-radial':  'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':   'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'hero-gradient':    'linear-gradient(135deg, #0a0a0f 0%, #16161f 40%, #1a1a2e 100%)',
-        'brand-gradient':   'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)',
-        'card-gradient':    'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.05) 100%)',
-        'jee-gradient':     'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-        'neet-gradient':    'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+        'hero-gradient':    'linear-gradient(135deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%)',
+        'brand-gradient':   'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)',
+        'card-gradient':    'linear-gradient(135deg, rgba(37,99,241,0.05) 0%, rgba(59,130,246,0.02) 100%)',
+        'jee-gradient':     'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        'neet-gradient':    'linear-gradient(135deg, #10b981 0%, #059669 100%)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -131,10 +144,10 @@ const config: Config = {
         'bounce-dot-3':    'bounce-dot 1.4s ease-in-out 0.32s infinite',
       },
       boxShadow: {
-        glass:   '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-        brand:   '0 0 30px rgba(99,102,241,0.3)',
-        'brand-lg': '0 0 60px rgba(99,102,241,0.4)',
-        card:    '0 4px 24px rgba(0,0,0,0.3)',
+        glass:   '0 8px 32px rgba(15,23,42,0.05), inset 0 1px 0 rgba(255,255,255,0.6)',
+        brand:   '0 4px 20px rgba(37,99,241,0.15)',
+        'brand-lg': '0 10px 40px rgba(37,99,241,0.25)',
+        card:    '0 4px 20px rgba(15,23,42,0.04)',
       },
       backdropBlur: {
         xs: '2px',
