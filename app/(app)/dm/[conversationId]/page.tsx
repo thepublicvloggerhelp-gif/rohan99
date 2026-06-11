@@ -8,13 +8,15 @@ import { ArrowLeft, Send, Image as ImageIcon, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { Profile, DirectMessage } from '@/types'
-import { formatMessageTime, getInitials } from '@/lib/utils'
+import { formatMessageTime, getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { usePresence } from '@/lib/presence'
 
 export default function DMConversationPage() {
   const params         = useParams()
   const conversationId = params.conversationId as string
   const supabase       = createClient()
+  const { presenceMap } = usePresence()
 
   const [me,       setMe]       = useState<Profile | null>(null)
   const [other,    setOther]    = useState<Profile | null>(null)
@@ -160,19 +162,37 @@ export default function DMConversationPage() {
       {/* Header */}
       <div className="flex items-center gap-3 px-4 h-14 border-b border-white/[0.06] bg-surface-2 flex-shrink-0">
         <Link href="/dm" className="btn-ghost p-1.5"><ArrowLeft className="w-4 h-4" /></Link>
-        {other && (
-          <Link href={`/profile/${other.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex items-center justify-center text-xs font-bold text-brand-400">
-              {other.avatar_url
-                ? <Image src={other.avatar_url} alt="" width={32} height={32} className="object-cover" />
-                : getInitials(other.full_name)}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-200">{other.username}</p>
-              <p className="text-xs text-slate-500">{(other as any).stream}</p>
-            </div>
-          </Link>
-        )}
+        {other && (() => {
+          const presence = presenceMap[other.id]
+          const status = presence ? presence.status : 'offline'
+
+          return (
+            <Link href={`/profile/${other.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              {/* Avatar relative wrapper */}
+              <div className="relative flex-shrink-0">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex items-center justify-center text-xs font-bold text-brand-400 border border-slate-200/60 shadow-sm animate-fade-in">
+                  {other.avatar_url
+                    ? <Image src={other.avatar_url} alt="" width={32} height={32} className="object-cover" />
+                    : getInitials(other.full_name)}
+                </div>
+                {/* Status Dot */}
+                <div className={`absolute bottom-[-1px] right-[-1px] w-2.5 h-2.5 status-dot ${status}`} />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-semibold text-slate-200">{other.username}</p>
+                  <span className={cn(
+                    'text-[9px] font-bold flex items-center gap-0.5 capitalize',
+                    status === 'online' ? 'text-green-500' : status === 'away' ? 'text-amber-500' : 'text-slate-400'
+                  )}>
+                    ● {status}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">{(other as any).stream}</p>
+              </div>
+            </Link>
+          )
+        })()}
       </div>
 
       {/* Messages */}

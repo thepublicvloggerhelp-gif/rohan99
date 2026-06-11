@@ -9,13 +9,15 @@ import { Message, Channel, Profile } from '@/types'
 import { MessageList } from '@/components/chat/MessageList'
 import { MessageInput } from '@/components/chat/MessageInput'
 import { ChannelSidebar } from '@/components/chat/ChannelSidebar'
-import { CHANNEL_ICONS } from '@/lib/utils'
+import { CHANNEL_ICONS, getInitials } from '@/lib/utils'
 import { CountdownBanner } from '@/components/chat/CountdownBanner'
+import { usePresence } from '@/lib/presence'
 
 export default function ChannelChatPage() {
   const params    = useParams()
   const channelId = params.channelId as string
   const supabase  = createClient()
+  const { presenceMap } = usePresence()
 
   const [channel,  setChannel]  = useState<Channel | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -217,6 +219,63 @@ export default function ChannelChatPage() {
           />
         )}
       </div>
+
+      {/* Online Now right sidebar (only for general channel) */}
+      {channel?.name === 'general' && (
+        <div className="hidden xl:flex flex-col w-64 border-l border-slate-200/60 bg-surface-2 flex-shrink-0">
+          <div className="p-4 border-b border-slate-200/60 h-14 flex items-center bg-surface-2 flex-shrink-0">
+            <h3 className="font-bold text-slate-50 text-sm">
+              Online Now ({Object.values(presenceMap).filter(({ user }) => user.id !== profile?.id).length})
+            </h3>
+          </div>
+          <div className="flex-1 overflow-y-auto scroll-area p-3 space-y-1 bg-surface-2/40">
+            {Object.values(presenceMap).filter(({ user }) => user.id !== profile?.id).length === 0 ? (
+              <div className="text-center py-12 text-slate-500 text-xs italic px-4">
+                Everyone is touching grass right now.
+              </div>
+            ) : (
+              Object.values(presenceMap)
+                .filter(({ user }) => user.id !== profile?.id)
+                .sort((a, b) => b.lastActive - a.lastActive)
+                .map(({ user, status, lastActive }) => {
+                  const minutesAgo = Math.max(0, Math.floor((Date.now() - lastActive) / 60000))
+                  const lastActiveText = minutesAgo === 0 ? 'Active just now' : `Last active: ${minutesAgo}m ago`
+
+                  return (
+                    <div
+                      key={user.id}
+                      className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-900/[0.03] transition-all relative cursor-pointer"
+                    >
+                      {/* Avatar */}
+                      <div className="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm">
+                        {user.avatar_url ? (
+                          <img src={user.avatar_url} alt="" className="w-full h-full object-cover rounded-full animate-fade-in" />
+                        ) : (
+                          getInitials(user.full_name)
+                        )}
+                        {/* Status dot */}
+                        <div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${status}`} />
+                      </div>
+
+                      {/* Info */}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-slate-50 truncate">{user.username}</p>
+                        <p className="text-[10px] text-slate-400 font-semibold truncate capitalize">
+                          {status} · {user.stream}
+                        </p>
+                      </div>
+
+                      {/* Tooltip */}
+                      <div className="absolute right-4 bottom-10 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/95 text-white text-[10px] font-semibold px-2 py-1.5 rounded-xl border border-slate-700/60 shadow-2xl whitespace-nowrap">
+                        {lastActiveText}
+                      </div>
+                    </div>
+                  )
+                })
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

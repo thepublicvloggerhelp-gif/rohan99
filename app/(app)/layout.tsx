@@ -14,6 +14,7 @@ import { Profile, Channel } from '@/types'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { cn, CHANNEL_ICONS } from '@/lib/utils'
 import { AppCtx } from '@/lib/context'
+import { PresenceProvider } from '@/lib/presence'
 
 // AppCtx is now imported from '@/lib/context'
 
@@ -69,7 +70,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <AppCtx.Provider value={{ profile, channels }}>
-      <div className="flex h-screen overflow-hidden bg-surface-1 pb-[60px] lg:pb-0">
+      <PresenceProvider>
+        <div className="flex h-screen overflow-hidden bg-surface-1 pb-[60px] lg:pb-0">
 
         {/* Mobile overlay */}
         {sideOpen && (
@@ -237,6 +239,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Link>
         ))}
       </nav>
+      </PresenceProvider>
     </AppCtx.Provider>
   )
 }
