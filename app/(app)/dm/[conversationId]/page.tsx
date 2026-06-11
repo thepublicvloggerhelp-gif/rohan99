@@ -129,14 +129,23 @@ export default function DMConversationPage() {
         imageUrl = u.publicUrl
       }
 
-      const { error } = await supabase.from('direct_messages').insert({
-        conversation_id: conversationId,
-        sender_id: me.id,
-        content: content.trim() || ' ',
-        image_url: imageUrl,
+      // Use server-side API route to bypass the broken RLS policy on dm_participants
+      const res = await fetch('/api/dm/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          content: content.trim() || ' ',
+          imageUrl,
+        }),
       })
 
-      if (error) { toast.error(error.message); return }
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error ?? 'Failed to send message')
+        return
+      }
+
       setContent('')
       setImage(null)
       setPreview(null)
