@@ -52,10 +52,10 @@ export default function DMConversationPage() {
           // Step 3: Fetch the other user's profile separately
           const { data: otherProf } = await supabase
             .from('profiles')
-            .select('id, username, full_name, avatar_url, stream')
+            .select('*')
             .eq('id', otherUserId)
             .single()
-          if (otherProf) setOther(otherProf)
+          if (otherProf) setOther(otherProf as Profile)
         }
 
         // Step 4: Fetch messages (flat query, no joins)
@@ -69,10 +69,10 @@ export default function DMConversationPage() {
         if (msgsErr) { toast.error('Could not load messages: ' + msgsErr.message); return }
 
         // Step 5: Enrich each message with sender profile
-        const senderIds = [...new Set((msgs || []).map((m: any) => m.sender_id))]
+        const senderIds = Array.from(new Set((msgs || []).map((m: any) => m.sender_id as string)))
         const { data: senderProfiles } = await supabase
           .from('profiles')
-          .select('id, username, full_name, avatar_url')
+          .select('*')
           .in('id', senderIds)
 
         const profileMap: Record<string, any> = {}
