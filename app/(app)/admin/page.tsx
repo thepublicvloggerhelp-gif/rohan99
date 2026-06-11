@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Users, BookOpen, FileText, ShieldCheck, Bell, TrendingUp, Clock } from 'lucide-react'
+import { Users, BookOpen, FileText, ShieldCheck, Bell, TrendingUp, Clock, Info } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
@@ -60,6 +60,7 @@ export default function AdminDashboard() {
     { href: '/admin/users',   icon: Users,     label: 'Manage Users',   desc: 'Approve, ban, delete', color: 'from-brand-500/20 to-brand-600/10', iconColor: 'text-brand-400' },
     { href: '/admin/tests',   icon: BookOpen,  label: 'Manage Tests',   desc: 'Create, edit, delete',  color: 'from-green-500/20 to-green-600/10', iconColor: 'text-green-400' },
     { href: '/admin/content', icon: FileText,  label: 'Content',        desc: 'Messages, notes',       color: 'from-purple-500/20 to-purple-600/10', iconColor: 'text-purple-400' },
+    { href: '/admin/about',   icon: Info,      label: 'Manage About',   desc: 'Edit bios, toggle members visibility', color: 'from-blue-500/20 to-blue-600/10', iconColor: 'text-blue-400' },
   ]
 
   return (

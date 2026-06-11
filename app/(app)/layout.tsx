@@ -7,7 +7,7 @@ import Image from 'next/image'
 import {
   Hash, MessageSquare, BookOpen, Trophy, FileText, User,
   ShieldCheck, LogOut, Menu, X, ChevronRight, Settings,
-  Zap, Bell, Inbox
+  Zap, Bell, Inbox, Info
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile, Channel } from '@/types'
@@ -24,6 +24,7 @@ const NAV = [
   { icon: BookOpen,     label: 'Tests',         href: '/tests',        id: 'nav-tests' },
   { icon: Trophy,       label: 'Leaderboard',   href: '/leaderboard',  id: 'nav-leaderboard' },
   { icon: FileText,     label: 'Notes',         href: '/notes',        id: 'nav-notes' },
+  { icon: Info,         label: 'About',        href: '/about',        id: 'nav-about' },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

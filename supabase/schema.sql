@@ -33,6 +33,7 @@ CREATE TABLE profiles (
   role          user_role   NOT NULL DEFAULT 'student',
   status        user_status NOT NULL DEFAULT 'approved',
   bio           TEXT,
+  show_on_about BOOLEAN NOT NULL DEFAULT false,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT username_length CHECK (char_length(username) >= 3 AND char_length(username) <= 20),
