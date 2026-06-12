@@ -223,7 +223,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="w-9" />
           </div>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden">
             {children}
           </div>
         </main>

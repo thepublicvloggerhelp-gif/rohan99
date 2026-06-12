@@ -90,7 +90,7 @@ export default function TakeTestPage() {
   if (!test || questions.length === 0) return <div className="flex items-center justify-center h-full"><div className="text-slate-400">Test not found or has no questions</div></div>
 
   if (!started) return (
-    <div className="flex items-center justify-center h-full p-6">
+    <div className="flex items-center justify-center min-h-full p-6 overflow-y-auto scroll-area">
       <div className="glass-card rounded-2xl p-8 max-w-md w-full text-center">
         <div className="flex justify-center mb-4">
           <FileText className="w-12 h-12 text-blue-500" />
@@ -143,7 +143,7 @@ export default function TakeTestPage() {
         <div className="h-full bg-brand-500 transition-all duration-1000" style={{ width: `${pct}%` }} />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col sm:flex-row flex-1 overflow-hidden">
         {/* Question panel */}
         <div className="flex-1 overflow-y-auto scroll-area p-6">
           <div className="max-w-2xl mx-auto">
@@ -169,9 +169,9 @@ export default function TakeTestPage() {
         </div>
 
         {/* Question navigator */}
-        <div className="w-48 border-l border-white/[0.06] bg-surface-2 p-3 overflow-y-auto scroll-area">
+        <div className="w-full sm:w-48 border-t sm:border-l sm:border-t-0 border-white/[0.06] bg-surface-2 p-3 overflow-y-auto scroll-area h-28 sm:h-auto flex-shrink-0">
           <p className="text-xs text-slate-500 font-medium mb-2">Questions</p>
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-8 sm:grid-cols-4 gap-1.5">
             {questions.map((_, i) => (
               <button key={i} onClick={() => setCurrent(i)}
                 className={cn('w-8 h-8 rounded-lg text-xs font-semibold transition-all',

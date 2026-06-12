@@ -86,21 +86,21 @@ export default function TestsPage() {
         <div className="flex flex-wrap gap-2 items-center mb-6">
           {STREAMS.map(s => (
             <button key={s} onClick={() => setStream(s)} id={`filter-stream-${s}`}
-              className={cn('px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm border',
+              className={cn('px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
                 stream === s 
-                  ? 'bg-brand-500 border-brand-600 text-white shadow-brand/20' 
-                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand' 
+                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
               )}>
               {s}
             </button>
           ))}
-          <div className="h-6 w-px bg-slate-200 mx-2" />
+          <div className="h-6 w-px bg-white/10 mx-2" />
           {SUBJECTS.map(s => (
             <button key={s} onClick={() => setSubject(s)} id={`filter-subject-${s}`}
-              className={cn('px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm border',
+              className={cn('px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
                 subject === s 
-                  ? 'bg-brand-500 border-brand-600 text-white shadow-brand/20' 
-                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand' 
+                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
               )}>
               {s}
             </button>
