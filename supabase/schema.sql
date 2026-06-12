@@ -424,7 +424,7 @@ CREATE POLICY "questions_read" ON questions FOR SELECT USING (
 CREATE POLICY "questions_admin" ON questions FOR ALL USING (is_admin());
 
 -- ── TEST ATTEMPTS ──
-CREATE POLICY "attempts_own"  ON test_attempts FOR SELECT USING (user_id = auth.uid() OR is_admin());
+CREATE POLICY "attempts_read_all" ON test_attempts FOR SELECT USING (is_approved());
 CREATE POLICY "attempts_insert" ON test_attempts FOR INSERT WITH CHECK (is_approved() AND user_id = auth.uid());
 
 -- ── ATTEMPT ANSWERS ──

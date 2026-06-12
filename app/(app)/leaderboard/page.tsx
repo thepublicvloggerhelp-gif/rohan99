@@ -26,7 +26,10 @@ export default function LeaderboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) setMyId(user.id)
 
-      const { data } = await supabase.from('leaderboard').select('*')
+      const { data } = await supabase
+        .from('leaderboard')
+        .select('*')
+        .order('total_score', { ascending: false })
       if (data) setEntries(data as LeaderboardEntry[])
       setLoading(false)
     }
@@ -34,7 +37,8 @@ export default function LeaderboardPage() {
   }, [])
 
   const filtered = tab === 'All' ? entries : entries.filter(e => e.stream === tab)
-  const ranked   = filtered.map((e, i) => ({ ...e, rank: i + 1 }))
+  const sorted   = [...filtered].sort((a, b) => b.total_score - a.total_score)
+  const ranked   = sorted.map((e, i) => ({ ...e, rank: i + 1 }))
 
   const rankBadge = (rank: number) => {
     if (rank === 1) return <Crown  className="w-5 h-5 text-yellow-400" />
@@ -66,10 +70,10 @@ export default function LeaderboardPage() {
               id={`leaderboard-tab-${t.value}`}
               onClick={() => setTab(t.value)}
               className={cn(
-                'px-5 py-2 rounded-2xl text-xs font-bold transition-all border shadow-sm',
+                'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
                 tab === t.value
-                  ? 'bg-purple-600 border-purple-700 text-white shadow-purple-500/20 shadow-md'
-                  : 'bg-surface-2 border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand'
+                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
               )}
             >
               {t.label}
@@ -78,30 +82,27 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Top 3 podium */}
-        {!loading && ranked.length >= 3 && (
+        {!loading && ranked.length >= 1 && (
           <div className="flex items-end justify-center gap-4 mb-8">
-            {[ranked[1], ranked[0], ranked[2]].map((e, i) => (
-              <div key={e.user_id} className={cn('flex flex-col items-center gap-2', i === 1 ? 'order-first' : i === 0 ? 'order-2' : 'order-last')}>
-                <div className={cn('relative', i === 0 ? 'scale-110' : '')}>
-                  <div className={cn('w-14 h-14 rounded-full overflow-hidden border-2 flex items-center justify-center font-bold shadow-md',
-                    i === 0 ? 'border-yellow-400 bg-yellow-100 text-yellow-700' :
-                    i === 1 ? 'border-slate-400 bg-slate-100 text-slate-700' :
-                              'border-amber-600 bg-amber-100 text-amber-800'
-                  )}>
+            {[
+              { e: ranked[1], place: 2, scale: 'scale-95', color: 'text-slate-300', border: 'border-slate-400/20', bg: 'bg-white/[0.02]', height: 'h-16' },
+              { e: ranked[0], place: 1, scale: 'scale-110', color: 'text-yellow-400', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', height: 'h-24' },
+              { e: ranked[2], place: 3, scale: 'scale-90', color: 'text-amber-600', border: 'border-amber-700/20', bg: 'bg-amber-600/5', height: 'h-12' },
+            ].filter(item => item.e !== undefined).map(({ e, place, scale, color, border, bg, height }) => (
+              <div key={e.user_id} className="flex flex-col items-center gap-2">
+                <div className={cn('relative', scale)}>
+                  <div className={cn('w-14 h-14 rounded-xl overflow-hidden border-2 flex items-center justify-center font-bold shadow-md bg-surface-4', border)}>
                     {e.avatar_url
                       ? <Image src={e.avatar_url} alt="" width={56} height={56} className="object-cover" />
-                      : <span>{getInitials(e.full_name)}</span>}
+                      : <span className="text-brand-400">{getInitials(e.full_name)}</span>}
                   </div>
-                  {i === 0 && <Crown className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-yellow-500 drop-shadow-md" />}
+                  {place === 1 && <Crown className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-yellow-500 drop-shadow-md" />}
                 </div>
-                <p className="text-xs font-extrabold text-slate-800 truncate max-w-[80px] text-center">{e.username}</p>
-                <p className="text-sm font-black text-slate-900">{e.total_score}</p>
-                <div className={cn('w-full h-12 rounded-t-2xl flex items-center justify-center text-lg font-black shadow-inner border-t',
-                  i === 0 ? 'bg-yellow-100/70 border-yellow-200 text-yellow-800 h-16' :
-                  i === 1 ? 'bg-slate-100/70 border-slate-200 text-slate-700' :
-                            'bg-amber-100/70 border-amber-200 text-amber-800 h-10'
-                )}>
-                  #{i === 0 ? 1 : i === 1 ? 2 : 3}
+                <p className="text-xs font-black text-slate-200 truncate max-w-[80px] text-center">@{e.username}</p>
+                <p className="text-sm font-black text-white">{e.total_score}</p>
+                <div className={cn('w-20 rounded-t-xl flex flex-col items-center justify-center text-xs font-black border-t shadow-inner', height, bg, border, color)}>
+                  <span className="text-[9px] uppercase tracking-wider opacity-60">Rank</span>
+                  <span>#{place}</span>
                 </div>
               </div>
             ))}
