@@ -16,37 +16,43 @@ const config: Config = {
     },
     extend: {
       borderColor: {
-        DEFAULT: 'rgba(15, 23, 42, 0.09)',
-        white: 'rgba(15, 23, 42, 0.9)',
+        DEFAULT: 'rgba(255, 255, 255, 0.07)',
       },
       colors: {
-        // Inverted slate color family for instant light theme typography
+        // Cinematic slate — dark theme, white text hierarchy
         slate: {
-          50:  '#0f172a', // Slate-900 (darkest)
-          100: '#0f172a',
-          200: '#1e293b', // Slate-800
-          300: '#334155', // Slate-700
-          400: '#475569', // Slate-600
-          500: '#64748b', // Slate-500
-          600: '#94a3b8', // Slate-400
-          700: '#cbd5e1', // Slate-300
-          800: '#e2e8f0', // Slate-200
-          900: '#f1f5f9', // Slate-100 (lightest)
+          50:  '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
         },
-        // Vibrant Indigo/Purple brand palette
+        // Brand: Electric Blue
         brand: {
-          50:  '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+          50:  '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
-        // Light surfaces driven by CSS variables
+        // Crimson accent
+        crimson: {
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+        },
+        // Dark surfaces via CSS variables
         surface: {
           1: 'var(--bg-primary)',
           2: 'var(--bg-secondary)',
@@ -62,29 +68,27 @@ const config: Config = {
         },
         // Semantic
         accent: {
-          purple: '#8b5cf6',
           blue:   '#2563eb',
+          red:    '#dc2626',
           green:  '#10b981',
-          red:    '#ef4444',
           yellow: '#f59e0b',
+          purple: '#8b5cf6',
           pink:   '#ec4899',
         },
-        // Stream colors
         jee:  '#2563eb',
         neet: '#10b981',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
+        sans:    ['Space Grotesk', 'var(--font-body)', 'system-ui', 'sans-serif'],
+        display: ['Syne', 'var(--font-display)', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'var(--font-mono)', 'monospace'],
       },
       backgroundImage: {
-        'gradient-radial':  'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':   'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'hero-gradient':    'linear-gradient(135deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%)',
-        'brand-gradient':   'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #818cf8 100%)',
-        'card-gradient':    'linear-gradient(135deg, rgba(37,99,241,0.05) 0%, rgba(59,130,246,0.02) 100%)',
-        'jee-gradient':     'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-        'neet-gradient':    'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'hero-gradient':   'linear-gradient(135deg, #08090E 0%, #0D0F1A 50%, #111420 100%)',
+        'brand-gradient':  'linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #3b82f6 100%)',
+        'red-gradient':    'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+        'card-gradient':   'linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(13,15,26,0.3) 100%)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -106,11 +110,11 @@ const config: Config = {
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%':      { transform: 'translateY(-8px)' },
+          '50%':      { transform: 'translateY(-6px)' },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(99,102,241,0.3)' },
-          '50%':      { boxShadow: '0 0 40px rgba(99,102,241,0.6)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(37,99,235,0.3)' },
+          '50%':      { boxShadow: '0 0 40px rgba(37,99,235,0.6)' },
         },
         'slide-in-right': {
           from: { transform: 'translateX(100%)', opacity: '0' },
@@ -148,14 +152,13 @@ const config: Config = {
         'bounce-dot-3':    'bounce-dot 1.4s ease-in-out 0.32s infinite',
       },
       boxShadow: {
-        glass:   '0 8px 32px rgba(15,23,42,0.05), inset 0 1px 0 rgba(255,255,255,0.6)',
-        brand:   '0 4px 20px rgba(37,99,241,0.15)',
-        'brand-lg': '0 10px 40px rgba(37,99,241,0.25)',
-        card:    '0 4px 20px rgba(15,23,42,0.04)',
+        glass:      '0 8px 32px rgba(0,0,0,0.5)',
+        brand:      '0 4px 20px rgba(37,99,235,0.3)',
+        'brand-lg': '0 10px 40px rgba(37,99,235,0.4)',
+        red:        '0 4px 20px rgba(220,38,38,0.3)',
+        card:       '0 4px 24px rgba(0,0,0,0.4)',
       },
-      backdropBlur: {
-        xs: '2px',
-      },
+      backdropBlur: { xs: '2px' },
     },
   },
   plugins: [require('tailwindcss-animate')],

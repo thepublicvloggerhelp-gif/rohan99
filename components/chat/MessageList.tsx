@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react'
 import { Message } from '@/types'
 import { MessageItem } from './MessageItem'
 import { format, isToday, isYesterday, isSameDay } from 'date-fns'
+import { MessageSquare } from 'lucide-react'
 
 interface Props {
   messages:          Message[]
@@ -15,19 +16,22 @@ interface Props {
 }
 
 function DateSeparator({ date }: { date: Date }) {
-  const label = isToday(date) ? 'Today' : isYesterday(date) ? 'Yesterday' : format(date, 'MMMM d, yyyy')
+  const label = isToday(date) ? 'TODAY' : isYesterday(date) ? 'YESTERDAY' : format(date, 'MMMM d, yyyy').toUpperCase()
   return (
     <div className="flex items-center gap-3 py-4 px-4">
-      <div className="flex-1 h-px bg-white/[0.06]" />
-      <span className="text-xs text-slate-500 font-medium px-2 py-1 rounded-full bg-white/[0.04] border border-white/[0.06]">
+      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+      <span className="text-[10px] font-black text-slate-700 tracking-[0.15em] px-3 py-1 rounded border border-white/[0.06]"
+        style={{ background: 'var(--bg-secondary)' }}>
         {label}
       </span>
-      <div className="flex-1 h-px bg-white/[0.06]" />
+      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
     </div>
   )
 }
 
-export function MessageList({ messages, currentUserId, currentUserRole, channelId, onReply, onDelete }: Props) {
+export function MessageList({
+  messages, currentUserId, currentUserRole, channelId, onReply, onDelete
+}: Props) {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,9 +41,14 @@ export function MessageList({ messages, currentUserId, currentUserRole, channelI
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8">
-        <div className="text-5xl mb-4">💬</div>
-        <h3 className="text-slate-300 font-semibold text-lg mb-1">No messages yet</h3>
-        <p className="text-slate-500 text-sm">Be the first to say something!</p>
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border border-white/[0.08]"
+          style={{ background: 'var(--bg-elevated)' }}>
+          <MessageSquare className="w-8 h-8 text-slate-700" />
+        </div>
+        <h3 className="font-black text-white text-lg mb-1 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+          No messages yet
+        </h3>
+        <p className="text-slate-600 text-sm font-medium">Be the first to say something.</p>
       </div>
     )
   }
@@ -47,20 +56,18 @@ export function MessageList({ messages, currentUserId, currentUserRole, channelI
   const items: React.ReactNode[] = []
   let lastDate: Date | null = null
   let lastSenderId: string | null = null
-  let lastTime: number = 0
+  let lastTime = 0
 
-  messages.forEach((msg, idx) => {
+  messages.forEach(msg => {
     const msgDate = new Date(msg.created_at)
     const msgTime = msgDate.getTime()
 
-    // Date separator
     if (!lastDate || !isSameDay(lastDate, msgDate)) {
       items.push(<DateSeparator key={`sep-${msg.id}`} date={msgDate} />)
-      lastDate = msgDate
+      lastDate     = msgDate
       lastSenderId = null
     }
 
-    // Group consecutive messages from same sender within 5 minutes
     const isContinuation = (
       lastSenderId === msg.sender_id &&
       (msgTime - lastTime) < 5 * 60 * 1000 &&

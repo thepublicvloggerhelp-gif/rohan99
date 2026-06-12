@@ -3,12 +3,11 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Reply, Trash2, SmilePlus, Pin, MoreHorizontal } from 'lucide-react'
+import { Reply, Trash2, SmilePlus, Pin } from 'lucide-react'
 import { Message } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { formatMessageTime, getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import EmojiPicker, { Theme } from 'emoji-picker-react'
 
 interface Props {
   message:          Message
@@ -22,20 +21,21 @@ interface Props {
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '🔥', '👏', '😮']
 
-export function MessageItem({ message, currentUserId, currentUserRole, channelId, isContinuation, onReply, onDelete }: Props) {
-  const supabase    = createClient()
+export function MessageItem({
+  message, currentUserId, currentUserRole, channelId, isContinuation, onReply, onDelete
+}: Props) {
+  const supabase   = createClient()
   const [showEmoji, setShowEmoji] = useState(false)
   const isOwn  = message.sender_id === currentUserId
   const isAdmin = currentUserRole === 'admin'
-
-  const sender = message.sender as any
+  const sender  = message.sender as any
 
   const handleDelete = async () => {
     if (!confirm('Delete this message?')) return
     const { error } = await supabase.from('messages').update({ is_deleted: true }).eq('id', message.id)
     if (error) { toast.error('Failed to delete'); return }
     onDelete(message.id)
-    toast.success('Message deleted')
+    toast.success('Deleted')
   }
 
   const handleReact = async (emoji: string) => {
@@ -50,7 +50,7 @@ export function MessageItem({ message, currentUserId, currentUserRole, channelId
 
   const handlePin = async () => {
     await supabase.from('pinned_messages').insert({ channel_id: channelId, message_id: message.id, pinned_by: currentUserId })
-    toast.success('Message pinned')
+    toast.success('Pinned')
   }
 
   // Group reactions by emoji
@@ -62,51 +62,72 @@ export function MessageItem({ message, currentUserId, currentUserRole, channelId
   })
 
   return (
-    <div className={cn('group message-item', isContinuation ? 'pt-0.5 pb-0.5' : 'pt-2')}>
+    <div className={cn('group message-item', isContinuation ? 'pt-0.5 pb-0.5' : 'pt-2.5')}>
+
       {/* Avatar or spacer */}
       <div className="flex-shrink-0 w-10">
         {!isContinuation ? (
           <Link href={`/profile/${message.sender_id}`}>
-            <div className="w-9 h-9 rounded-full overflow-hidden bg-surface-4 flex items-center justify-center text-sm font-bold text-brand-400 hover:ring-2 ring-brand-500/30 transition-all">
-              {sender?.avatar_url ? (
-                <Image src={sender.avatar_url} alt={sender.username} width={36} height={36} className="object-cover" />
-              ) : (
-                getInitials(sender?.full_name ?? 'U')
-              )}
+            <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center text-xs font-black text-blue-400 hover:ring-2 ring-blue-500/40 transition-all">
+              {sender?.avatar_url
+                ? <Image src={sender.avatar_url} alt={sender.username} width={36} height={36} className="object-cover" />
+                : getInitials(sender?.full_name ?? 'U')}
             </div>
           </Link>
         ) : null}
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Header (only for first in group) */}
+        {/* Header */}
         {!isContinuation && (
           <div className="flex items-baseline gap-2 mb-0.5">
-            <Link href={`/profile/${message.sender_id}`} className="font-semibold text-slate-200 hover:text-white text-sm transition-colors">
+            <Link
+              href={`/profile/${message.sender_id}`}
+              className="font-black text-white hover:text-blue-400 text-sm transition-colors tracking-tight"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
               {sender?.username ?? 'Unknown'}
             </Link>
+
+            {/* Stream badge */}
             {sender?.stream && (
-              <span className={cn('text-[10px] font-bold uppercase tracking-wide', sender.stream === 'JEE' ? 'text-indigo-400' : 'text-green-400')}>
+              <span className={cn(
+                'text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded',
+                sender.stream === 'JEE'
+                  ? 'bg-blue-600/25 text-blue-400 border border-blue-500/30'
+                  : 'bg-emerald-600/25 text-emerald-400 border border-emerald-500/30'
+              )}>
                 {sender.stream}
               </span>
             )}
+
+            {/* Admin badge */}
             {sender?.role === 'admin' && (
-              <span className="text-[10px] font-bold uppercase text-yellow-400">ADMIN</span>
+              <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-red-600/25 text-red-400 border border-red-500/30">
+                ADMIN
+              </span>
             )}
-            <span className="text-slate-600 text-xs">{formatMessageTime(message.created_at)}</span>
+
+            <span className="text-slate-600 text-[11px] font-medium">
+              {formatMessageTime(message.created_at)}
+            </span>
           </div>
         )}
 
         {/* Reply reference */}
         {message.reply_to && (
-          <div className="flex items-center gap-2 mb-1 pl-3 border-l-2 border-brand-500/40">
-            <span className="text-xs text-brand-400 font-medium">{(message.reply_to as any).sender?.username}</span>
-            <span className="text-xs text-slate-500 truncate max-w-xs">{message.reply_to.content}</span>
+          <div className="flex items-center gap-2 mb-1.5 pl-3 border-l-2 border-blue-600/50 py-0.5">
+            <span className="text-xs font-bold text-blue-400">
+              {(message.reply_to as any).sender?.username}
+            </span>
+            <span className="text-xs text-slate-600 truncate max-w-xs">
+              {message.reply_to.content}
+            </span>
           </div>
         )}
 
         {/* Content */}
-        <p className={cn('text-slate-300 text-sm leading-relaxed break-words', isContinuation && 'mt-0')}>
+        <p className="text-slate-300 text-sm leading-relaxed break-words font-medium">
           {message.content}
         </p>
 
@@ -118,7 +139,7 @@ export function MessageItem({ message, currentUserId, currentUserRole, channelId
               alt="Shared image"
               width={300}
               height={200}
-              className="rounded-xl object-cover max-h-64 cursor-pointer hover:opacity-90 transition-opacity"
+              className="rounded-xl object-cover max-h-64 cursor-pointer hover:opacity-90 transition-opacity border border-white/[0.06]"
               onClick={() => window.open(message.image_url!, '_blank')}
             />
           </div>
@@ -126,7 +147,7 @@ export function MessageItem({ message, currentUserId, currentUserRole, channelId
 
         {/* Reactions */}
         {Object.keys(reactionGroups).length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {Object.entries(reactionGroups).map(([emoji, { count, mine }]) => (
               <button
                 key={emoji}
@@ -134,30 +155,34 @@ export function MessageItem({ message, currentUserId, currentUserRole, channelId
                 className={cn('reaction-chip', mine && 'active')}
               >
                 <span>{emoji}</span>
-                <span className="text-slate-400 font-medium">{count}</span>
+                <span className={cn('font-black text-xs', mine ? 'text-blue-300' : 'text-slate-500')}>
+                  {count}
+                </span>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Actions (on hover) */}
+      {/* Hover actions */}
       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 self-start mt-1">
-        {/* Quick reactions */}
+        {/* Quick emojis */}
         <div className="relative">
           <button className="msg-action" title="React" onClick={() => setShowEmoji(!showEmoji)}>
             <SmilePlus className="w-4 h-4" />
           </button>
           {showEmoji && (
-            <div className="absolute right-0 bottom-8 z-50">
-              {/* Quick pick row */}
-              <div className="flex gap-1 mb-1 bg-surface-4 border border-white/[0.08] rounded-xl p-2 shadow-xl">
-                {QUICK_EMOJIS.map(e => (
-                  <button key={e} onClick={() => handleReact(e)} className="text-lg hover:scale-125 transition-transform">
-                    {e}
-                  </button>
-                ))}
-              </div>
+            <div className="absolute right-0 bottom-9 z-50 flex gap-1 px-2 py-1.5 rounded-xl border border-white/[0.08] shadow-2xl"
+              style={{ background: 'var(--bg-card)' }}>
+              {QUICK_EMOJIS.map(e => (
+                <button
+                  key={e}
+                  onClick={() => handleReact(e)}
+                  className="text-lg hover:scale-125 transition-transform p-0.5"
+                >
+                  {e}
+                </button>
+              ))}
             </div>
           )}
         </div>

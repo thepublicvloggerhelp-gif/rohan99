@@ -12,7 +12,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { Profile, Channel } from '@/types'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
-import { cn, CHANNEL_ICONS } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { AppCtx } from '@/lib/context'
 import { PresenceProvider } from '@/lib/presence'
 
@@ -86,11 +86,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ? (pathname.startsWith('/chat') ? 'w-64 translate-x-0' : 'w-[72px] translate-x-0')
             : '-translate-x-full lg:w-[72px] lg:translate-x-0'
         )}>
-          {/* Column 1: Icon Rail (72px wide) */}
-          <div className="flex flex-col w-[72px] border-r border-[#1e293b]/30 bg-[#0B0F19] h-full flex-shrink-0">
+          {/* Column 1: Icon Rail */}
+          <div className="flex flex-col w-[72px] border-r border-white/[0.05] h-full flex-shrink-0"
+            style={{ background: '#08090E' }}>
             {/* Logo */}
-            <div className="flex items-center justify-center h-16 border-b border-[#1e293b]/30">
-              <Link href="/chat" id="logo-link" className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-brand-500/30 hover:border-brand-500/50 bg-[#111111] transition-all">
+            <div className="flex items-center justify-center h-16 border-b border-white/[0.05]">
+              <Link href="/chat" id="logo-link" className="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden border border-blue-600/30 hover:border-blue-500/60 bg-white/[0.04] transition-all hover:shadow-lg hover:shadow-blue-500/20">
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
               </Link>
             </div>
@@ -147,7 +148,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </nav>
 
             {/* Bottom: notifications + avatar */}
-            <div className="flex flex-col items-center gap-2.5 p-3 border-t border-[#1e293b]/30">
+            <div className="flex flex-col items-center gap-2.5 p-3 border-t border-white/[0.05]">
               <NotificationBell />
               <Link
                 href={`/profile/${profile?.id}`}
@@ -155,43 +156,46 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 title="My Profile"
                 className="group relative flex items-center justify-center"
               >
-                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/15 hover:border-brand-400 transition-colors bg-[#1E293B]">
+                <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/[0.1] hover:border-blue-500/50 transition-colors" style={{ background: 'var(--bg-elevated)' }}>
                   {profile?.avatar_url ? (
                     <Image src={profile.avatar_url} alt="Avatar" width={36} height={36} className="object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-brand-500/20 text-brand-400 text-sm font-bold">
+                    <div className="w-full h-full flex items-center justify-center bg-blue-600/20 text-blue-400 text-sm font-black">
                       {profile?.username?.[0]?.toUpperCase() ?? 'U'}
                     </div>
                   )}
                 </div>
               </Link>
-              <button onClick={signOut} id="signout-btn" title="Sign out" className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/20 transition-all duration-150">
+              <button onClick={signOut} id="signout-btn" title="Sign out" className="flex items-center justify-center w-8 h-8 rounded-xl text-slate-600 hover:text-red-400 hover:bg-red-500/15 transition-all duration-150">
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Column 2: Channel list (only on mobile, when sideOpen is true and in chat routes) */}
+          {/* Column 2: Channel list (mobile) */}
           {sideOpen && pathname.startsWith('/chat') && (
-            <div className="flex-1 flex flex-col bg-surface-3 lg:hidden overflow-y-auto scroll-area">
-              <div className="px-4 py-4 border-b border-white/[0.06]">
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Channels</h2>
+            <div className="flex-1 flex flex-col lg:hidden overflow-y-auto scroll-area border-r border-white/[0.05]"
+              style={{ background: 'var(--bg-secondary)' }}>
+              <div className="px-4 py-4 border-b border-white/[0.05]">
+                <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em]">Channels</p>
               </div>
               <div className="p-2 flex-1">
                 {groups.map(group => (
-                  <div key={group.name} className="mb-3">
-                    <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{group.name}</div>
+                  <div key={group.name} className="mb-4">
+                    <div className="px-2 py-1 text-[10px] font-black text-slate-700 uppercase tracking-[0.18em] mb-1">{group.name}</div>
                     {group.channels.map(ch => (
                       <Link
                         key={ch.id}
                         href={`/chat/${ch.id}`}
                         onClick={() => setSideOpen(false)}
                         className={cn(
-                          'flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors',
-                          pathname.endsWith(ch.id) && 'text-white bg-brand-500/15'
+                          'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors',
+                          pathname.endsWith(ch.id)
+                            ? 'text-white bg-blue-600'
+                            : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.05]'
                         )}
                       >
-                        <span className="text-base">{CHANNEL_ICONS[ch.name] ?? '💬'}</span>
+                        <Hash className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">{ch.name}</span>
                       </Link>
                     ))}
@@ -203,17 +207,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* ── MAIN CONTENT ── */}
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
           {/* Mobile header */}
-          <div className="flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-surface-2 lg:hidden flex-shrink-0">
+          <div className="flex items-center justify-between px-4 h-14 border-b border-white/[0.06] lg:hidden flex-shrink-0"
+            style={{ background: 'var(--bg-secondary)' }}>
             <button id="mobile-menu-btn" onClick={() => setSideOpen(!sideOpen)} className="btn-ghost p-2">
               {sideOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full overflow-hidden border border-brand-500/30 bg-[#111111]">
-                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
+              <div className="w-7 h-7 rounded-lg overflow-hidden border border-blue-600/30">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top animate-logo" />
               </div>
-              <span className="font-bold text-slate-100">YPSdudes</span>
+              <span className="font-black text-white tracking-tight" style={{ fontFamily: 'var(--font-display)', fontSize: '15px' }}>YPSdudes</span>
             </div>
             <div className="w-9" />
           </div>

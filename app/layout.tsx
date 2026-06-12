@@ -1,12 +1,20 @@
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Space_Grotesk, Syne, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-body',
   display: 'swap',
+  weight: ['400', '500', '600', '700'],
+})
+
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['700', '800'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
@@ -20,23 +28,25 @@ export const metadata: Metadata = {
   description: 'Private community for Class 12 JEE and NEET aspirants of Yugantar Public School, Rajnandgaon.',
   keywords: ['JEE', 'NEET', 'YPS', 'Yugantar Public School', 'Rajnandgaon', 'study community'],
   authors: [{ name: 'YPS Team' }],
-  themeColor: '#0a0a0f',
+  themeColor: '#08090E',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans bg-surface-1 text-slate-100 min-h-screen`}>
+      <body className={`${spaceGrotesk.variable} ${syne.variable} ${jetbrainsMono.variable} font-sans min-h-screen`}
+        style={{ background: '#08090E', color: '#F8FAFC' }}>
         {children}
         <Toaster
           theme="dark"
           position="top-right"
           toastOptions={{
             style: {
-              background: 'rgba(28,28,40,0.95)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#13162A',
+              border: '1px solid rgba(37,99,235,0.25)',
               color: '#f1f5f9',
-              backdropFilter: 'blur(20px)',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontWeight: '600',
             },
           }}
         />
