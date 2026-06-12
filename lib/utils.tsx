@@ -1,6 +1,11 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
+import React from 'react'
+import {
+  Atom, FlaskConical, Ruler, Dna, BookOpen,
+  MessageSquare, Megaphone, HelpCircle, FileText
+} from 'lucide-react'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -35,14 +40,14 @@ export function getStreamBg(stream: string): string {
   return stream === 'JEE' ? 'bg-indigo-500/20 border-indigo-500/30' : 'bg-green-500/20 border-green-500/30'
 }
 
-export function getSubjectIcon(subject: string): string {
-  const icons: Record<string, string> = {
-    Physics:     '⚛️',
-    Chemistry:   '🧪',
-    Mathematics: '📐',
-    Biology:     '🧬',
+export function getSubjectIcon(subject: string): React.ReactNode {
+  const icons: Record<string, React.ReactNode> = {
+    Physics:     <Atom className="w-4 h-4 inline-block text-purple-400" />,
+    Chemistry:   <FlaskConical className="w-4 h-4 inline-block text-pink-400" />,
+    Mathematics: <Ruler className="w-4 h-4 inline-block text-amber-400" />,
+    Biology:     <Dna className="w-4 h-4 inline-block text-emerald-400" />,
   }
-  return icons[subject] ?? '📚'
+  return icons[subject] ?? <BookOpen className="w-4 h-4 inline-block text-slate-400" />
 }
 
 export function calculateAccuracy(correct: number, total: number): number {
@@ -50,13 +55,14 @@ export function calculateAccuracy(correct: number, total: number): number {
   return Math.round((correct / total) * 100)
 }
 
-export const CHANNEL_ICONS: Record<string, string> = {
-  general:         '💬',
-  'jee-discussion':'🎯',
-  'neet-discussion':'🩺',
-  physics:         '⚛️',
-  chemistry:       '🧪',
-  mathematics:     '📐',
-  biology:         '🧬',
-  announcements:   '📢',
+export const CHANNEL_ICONS: Record<string, React.ReactNode> = {
+  general:         <MessageSquare className="w-4 h-4 text-blue-500" />,
+  'jee-discussion': <BookOpen className="w-4 h-4 text-indigo-500" />,
+  'neet-discussion':<BookOpen className="w-4 h-4 text-emerald-500" />,
+  physics:         <Atom className="w-4 h-4 text-purple-500" />,
+  chemistry:       <FlaskConical className="w-4 h-4 text-pink-500" />,
+  mathematics:     <Ruler className="w-4 h-4 text-amber-500" />,
+  biology:         <Dna className="w-4 h-4 text-emerald-500" />,
+  announcements:   <Megaphone className="w-4 h-4 text-red-500" />,
+  doubts:          <HelpCircle className="w-4 h-4 text-slate-500" />,
 }

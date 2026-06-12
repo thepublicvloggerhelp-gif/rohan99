@@ -79,8 +79,8 @@ const config: Config = {
         neet: '#10b981',
       },
       fontFamily: {
-        sans:    ['Space Grotesk', 'var(--font-body)', 'system-ui', 'sans-serif'],
-        display: ['Syne', 'var(--font-display)', 'system-ui', 'sans-serif'],
+        sans:    ['Inter', 'var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'var(--font-sans)', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'var(--font-mono)', 'monospace'],
       },
       backgroundImage: {

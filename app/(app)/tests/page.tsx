@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { BookOpen, Clock, Target, ChevronRight, Filter } from 'lucide-react'
+import { BookOpen, Clock, Target, ChevronRight, Filter, FileText, CheckCircle2, Stethoscope, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Test, Profile } from '@/types'
 import { getSubjectIcon, cn } from '@/lib/utils'
@@ -57,23 +57,27 @@ export default function TestsPage() {
     <div className="flex-1 overflow-y-auto scroll-area p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-3xl p-6 shadow-brand/10 shadow-lg mb-8 relative overflow-hidden">
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">🎯</div>
-          <h1 className="text-3xl font-extrabold tracking-tight mb-2">Chapter-wise Practice Tests</h1>
-          <p className="text-blue-100 text-sm max-w-md">Mock tests styled for JEE and NEET prep with real-time feedback, detailed marking schemes, and performance analysis.</p>
+        <div className="bg-blue-600 text-white rounded-2xl p-6 shadow-brand mb-8 relative overflow-hidden border border-blue-500/20">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none select-none">
+            <Target className="w-24 h-24" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">Chapter-wise Practice Tests</h1>
+          <p className="text-blue-100 text-sm max-w-md font-medium">Mock tests styled for JEE and NEET prep with real-time feedback, detailed marking schemes, and performance analysis.</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Available Tests', value: streamTests.length, icon: '📝' },
-            { label: 'Attempted',       value: Object.keys(attemptMap).length, icon: '✅' },
-            { label: 'Your Stream',     value: profile?.stream ?? '—', icon: profile?.stream === 'JEE' ? '🎯' : '🩺' },
+            { label: 'Available Tests', value: streamTests.length, icon: <FileText className="w-5 h-5 text-blue-500 mx-auto" /> },
+            { label: 'Attempted',       value: Object.keys(attemptMap).length, icon: <CheckCircle2 className="w-5 h-5 text-emerald-500 mx-auto" /> },
+            { label: 'Your Stream',     value: profile?.stream ?? '—', icon: profile?.stream === 'JEE' ? <Target className="w-5 h-5 text-indigo-500 mx-auto" /> : <Stethoscope className="w-5 h-5 text-emerald-500 mx-auto" /> },
           ].map(s => (
-            <div key={s.label} className="stat-card">
-              <span className="text-2xl">{s.icon}</span>
-              <p className="text-2xl font-bold text-slate-100">{s.value}</p>
-              <p className="text-xs text-slate-500">{s.label}</p>
+            <div key={s.label} className="stat-card flex flex-col justify-between py-4 text-center">
+              <div className="mb-1">{s.icon}</div>
+              <div>
+                <p className="text-xl font-black text-slate-100">{s.value}</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-0.5">{s.label}</p>
+              </div>
             </div>
           ))}
         </div>

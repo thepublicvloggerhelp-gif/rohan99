@@ -96,21 +96,21 @@ export default function MemoriesPage() {
     <div className="flex flex-col items-center justify-center py-24 text-center px-4">
       {/* Illustration */}
       <div className="relative mb-6">
-        <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-pink-100 to-rose-100 border-2 border-pink-200 flex items-center justify-center shadow-inner">
-          <Camera className="w-12 h-12 text-pink-400" />
+        <div className="w-28 h-28 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shadow-inner">
+          <Camera className="w-12 h-12 text-slate-500" />
         </div>
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md">
+        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
       </div>
-      <h2 className="text-2xl font-black text-slate-800 mb-2">No memories yet!</h2>
+      <h2 className="text-2xl font-black text-slate-200 uppercase tracking-tight mb-2">No memories yet!</h2>
       <p className="text-slate-500 text-sm max-w-xs leading-relaxed mb-6">
-        Be the first to add a memory and start building your squad's photo wall. Every moment counts! 📸
+        Be the first to add a memory and start building your squad's photo wall. Every moment counts.
       </p>
       <button
         id="empty-add-memory-btn"
         onClick={() => setShowUpload(true)}
-        className="btn-primary bg-gradient-to-r from-pink-500 to-rose-500 border-pink-700 px-6 py-3 text-sm gap-2"
+        className="btn-primary px-6 py-3 text-sm gap-2"
       >
         <Plus className="w-4 h-4" />
         Be the first to add a memory!
@@ -125,12 +125,12 @@ export default function MemoriesPage() {
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6 gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
               <Images className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Memory Wall</h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <h1 className="text-2xl font-black text-slate-100 tracking-tight uppercase">Memory Wall</h1>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
                 {loading ? 'Loading…' : `${memories.length} memories shared`}
               </p>
             </div>
@@ -139,7 +139,7 @@ export default function MemoriesPage() {
           <button
             id="add-memory-btn"
             onClick={() => setShowUpload(true)}
-            className="btn-primary bg-gradient-to-r from-pink-500 to-rose-500 border-pink-700 shadow-pink-500/30 gap-2 text-sm flex-shrink-0"
+            className="btn-primary gap-2 text-sm flex-shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Add Memory</span>
@@ -149,24 +149,24 @@ export default function MemoriesPage() {
 
         {/* ── Memory of the Day ──────────────────────────────────────────── */}
         {motd && !loading && (
-          <div className="motd-card rounded-3xl p-4 mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="motd-card rounded-2xl p-4 mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             {/* Badge */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md shadow-amber-400/40">
+              <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center shadow-md shadow-red-500/25">
                 <Star className="w-5 h-5 text-white fill-white" />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Memory of the Day</p>
-                <p className="text-xs text-slate-600 font-medium">A special pick just for today ✨</p>
+                <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Memory of the Day</p>
+                <p className="text-xs text-slate-400 font-medium">A special pick just for today</p>
               </div>
             </div>
 
             {/* Divider */}
-            <div className="hidden sm:block w-px h-16 bg-pink-200/80 flex-shrink-0" />
+            <div className="hidden sm:block w-px h-12 bg-white/[0.08] flex-shrink-0" />
 
             {/* Thumbnail + caption */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-md">
+              <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
                 <img
                   src={motd.photo_url}
                   alt={motd.caption ?? 'Memory of the Day'}
@@ -175,12 +175,12 @@ export default function MemoriesPage() {
               </div>
               <div className="min-w-0 flex-1">
                 {motd.caption && (
-                  <p className="text-sm font-semibold text-slate-800 line-clamp-2 mb-1">
+                  <p className="text-sm font-semibold text-slate-200 line-clamp-2 mb-1">
                     "{motd.caption}"
                   </p>
                 )}
                 <p className="text-xs text-slate-500">
-                  by <span className="font-bold text-pink-600">@{(motd.uploader as any)?.username ?? 'someone'}</span>
+                  by <span className="font-bold text-blue-500">@{(motd.uploader as any)?.username ?? 'someone'}</span>
                   {motd.taken_at && ` · ${format(new Date(motd.taken_at), 'MMMM d, yyyy')}`}
                 </p>
               </div>

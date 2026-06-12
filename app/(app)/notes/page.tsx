@@ -51,14 +51,16 @@ export default function NotesPage() {
     <div className="overflow-y-auto scroll-area h-full p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-3xl p-6 shadow-md mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="absolute right-32 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">📚</div>
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight mb-1">Study Notes Library</h1>
-            <p className="text-emerald-50 text-sm max-w-md">Upload and download community-curated prep material. Filter by subject to find exactly what you need.</p>
+        <div className="bg-blue-600 text-white rounded-2xl p-6 shadow-brand mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 border border-blue-500/20">
+          <div className="absolute right-32 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none select-none">
+            <FileText className="w-24 h-24" />
           </div>
-          <Link href="/notes/upload" id="upload-notes-btn" className="btn-premium px-5 py-3 rounded-2xl bg-white text-emerald-600 font-bold text-sm hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 self-start md:self-center shadow-lg shadow-emerald-950/10">
-            <Upload className="w-4 h-4 text-emerald-600" /> Upload Notes
+          <div>
+            <h1 className="text-3xl font-black tracking-tight mb-1 uppercase">Study Notes Library</h1>
+            <p className="text-blue-105 text-sm max-w-md font-medium">Upload and download community-curated prep material. Filter by subject to find exactly what you need.</p>
+          </div>
+          <Link href="/notes/upload" id="upload-notes-btn" className="bg-white text-blue-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-100 active:scale-95 transition-all flex items-center gap-2 self-start md:self-center shadow-md">
+            <Upload className="w-4 h-4 text-blue-600" /> Upload Notes
           </Link>
         </div>
 

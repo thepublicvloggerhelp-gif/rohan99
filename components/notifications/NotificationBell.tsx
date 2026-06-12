@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell } from 'lucide-react'
+import { Bell, Megaphone, FileText, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/types'
-import { formatRelativeTime } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { formatRelativeTime, cn } from '@/lib/utils'
 
 export function NotificationBell() {
   const supabase = createClient()
@@ -54,10 +53,13 @@ export function NotificationBell() {
   }
 
   const typeIcon = (type: string) => {
-    const icons: Record<string, string> = {
-      announcement: '📢', test: '📝', admin: '🛡️', general: '🔔'
+    const icons: Record<string, React.ReactNode> = {
+      announcement: <Megaphone className="w-4 h-4 text-red-500 flex-shrink-0" />,
+      test:         <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />,
+      admin:        <ShieldCheck className="w-4 h-4 text-amber-500 flex-shrink-0" />,
+      general:      <Bell className="w-4 h-4 text-slate-400 flex-shrink-0" />,
     }
-    return icons[type] ?? '🔔'
+    return icons[type] ?? <Bell className="w-4 h-4 text-slate-400 flex-shrink-0" />
   }
 
   return (

@@ -11,7 +11,7 @@ import { ArrowLeft, Upload, FileText, X, Loader2, Image as ImageIcon } from 'luc
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { toast } from 'sonner'
-import { formatFileSize } from '@/lib/utils'
+import { formatFileSize, getSubjectIcon } from '@/lib/utils'
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics', 'Biology'] as const
 
@@ -174,8 +174,8 @@ export default function UploadNotePage() {
               {SUBJECTS.map(s => (
                 <label key={s} className="flex items-center gap-2 p-3 rounded-xl border border-white/[0.08] hover:border-white/20 cursor-pointer transition-all has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-500/10">
                   <input type="radio" value={s} className="sr-only" {...register('subject')} />
-                  <span className="text-lg">{s === 'Physics' ? '⚛️' : s === 'Chemistry' ? '🧪' : s === 'Mathematics' ? '📐' : '🧬'}</span>
-                  <span className="text-sm font-medium text-slate-300">{s}</span>
+                  <span className="text-lg flex items-center justify-center">{getSubjectIcon(s)}</span>
+                  <span className="text-sm font-semibold text-slate-300">{s}</span>
                 </label>
               ))}
             </div>

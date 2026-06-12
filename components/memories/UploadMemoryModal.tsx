@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import { X, Upload, ImageIcon, Tag, Calendar, FileText, Loader2, CheckCircle } from 'lucide-react'
+import { X, Upload, ImageIcon, Tag, Calendar, FileText, Loader2, CheckCircle, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile, Memory } from '@/types'
 import { cn } from '@/lib/utils'
@@ -129,7 +129,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
         tags: taggedUsers,
       }
 
-      toast.success('Memory added! 🎉')
+      toast.success('Memory added successfully')
       setTimeout(() => {
         onUploaded(fullMemory)
         onClose()
@@ -146,29 +146,29 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/75 backdrop-blur-md"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative z-10 w-full sm:max-w-lg bg-surface-2 border border-white/[0.06] rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-surface-2 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center">
               <ImageIcon className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-base">Add a Memory</h3>
-              <p className="text-[11px] text-slate-500">Share a moment with the squad</p>
+              <h3 className="font-bold text-slate-100 text-base uppercase tracking-tight">Add a Memory</h3>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Share a moment with the squad</p>
             </div>
           </div>
           <button
             id="close-upload-modal"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4 text-slate-600" />
+            <X className="w-4 h-4 text-slate-400 hover:text-white" />
           </button>
         </div>
 
@@ -185,9 +185,9 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
               onDragLeave={() => setIsDragging(false)}
               onDrop={onDrop}
               className={cn(
-                'relative border-2 border-dashed rounded-2xl transition-all duration-200 overflow-hidden',
+                'relative border-2 border-dashed rounded-xl transition-all duration-200 overflow-hidden',
                 preview ? 'border-transparent' : 'cursor-pointer',
-                isDragging ? 'border-pink-400 bg-pink-50 scale-[1.01]' : 'border-slate-200 hover:border-pink-300 hover:bg-pink-50/30',
+                isDragging ? 'border-blue-500 bg-blue-500/5 scale-[1.01]' : 'border-white/[0.08] hover:border-blue-500/50 hover:bg-white/[0.02]',
               )}
             >
               {preview ? (
@@ -195,33 +195,33 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                   <img
                     src={preview}
                     alt="Preview"
-                    className="w-full max-h-72 object-contain bg-slate-50"
+                    className="w-full max-h-72 object-contain bg-surface-1"
                   />
                   <button
                     type="button"
                     onClick={e => { e.stopPropagation(); setFile(null); setPreview(null) }}
-                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                    className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/80 text-white flex items-center justify-center hover:bg-black transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={e => { e.stopPropagation(); fileInputRef.current?.click() }}
-                    className="absolute bottom-2 right-2 text-[11px] bg-black/60 text-white rounded-full px-3 py-1 hover:bg-black/80 transition-colors font-semibold"
+                    className="absolute bottom-2 right-2 text-[10px] uppercase tracking-wider bg-black/80 text-white rounded-lg px-3 py-1.5 hover:bg-black transition-colors font-bold"
                   >
                     Change
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3 py-10 px-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-100 to-rose-100 border-2 border-pink-200 flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-pink-500" />
+                  <div className="w-14 h-14 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-slate-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-slate-700">
-                      Drop a photo here, or <span className="text-pink-500 underline">browse</span>
+                    <p className="text-sm font-semibold text-slate-300">
+                      Drop a photo here, or <span className="text-blue-500 underline">browse</span>
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-1">JPG, PNG, WebP, GIF up to 10MB</p>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-1.5">JPG, PNG, WebP, GIF up to 10MB</p>
                   </div>
                 </div>
               )}
@@ -236,22 +236,22 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
 
             {/* Caption */}
             <div>
-              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                 <FileText className="w-3.5 h-3.5" /> Caption
               </label>
               <textarea
                 id="memory-caption"
                 value={caption}
                 onChange={e => setCaption(e.target.value)}
-                placeholder="What's the story behind this moment? ✨"
+                placeholder="What's the story behind this moment?"
                 rows={2}
-                className="input-base resize-none py-2.5 text-sm placeholder:text-slate-400 text-slate-800"
+                className="input-base resize-none py-2.5 text-sm placeholder:text-slate-500"
               />
             </div>
 
             {/* Date taken */}
             <div>
-              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                 <Calendar className="w-3.5 h-3.5" /> Date Taken
               </label>
               <input
@@ -259,13 +259,14 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                 type="date"
                 value={takenAt}
                 onChange={e => setTakenAt(e.target.value)}
-                className="input-base py-2.5 text-sm text-slate-800"
+                className="input-base py-2.5 text-sm text-slate-200"
+                style={{ colorScheme: 'dark' }}
               />
             </div>
 
             {/* Tag friends */}
             <div className="relative">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                 <Tag className="w-3.5 h-3.5" /> Tag Friends
               </label>
 
@@ -277,7 +278,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                     return (
                       <span
                         key={uid}
-                        className="memory-tag cursor-pointer hover:bg-pink-200/60 transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/20 cursor-pointer hover:bg-blue-500/25 transition-colors"
                         onClick={() => toggleTag(uid)}
                       >
                         @{u?.username ?? uid.slice(0, 8)}
@@ -296,32 +297,32 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                   onChange={e => { setTagQuery(e.target.value); setShowTagDD(true) }}
                   onFocus={() => setShowTagDD(true)}
                   placeholder="Search friends to tag…"
-                  className="input-base py-2 text-sm text-slate-800"
+                  className="input-base py-2 text-sm text-slate-200"
                 />
 
                 {showTagDD && filteredUsers.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-20 max-h-40 overflow-y-auto scroll-area">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-surface-3 border border-white/[0.08] rounded-xl shadow-xl z-20 max-h-40 overflow-y-auto scroll-area">
                     {filteredUsers.map(u => (
                       <button
                         key={u.id}
                         type="button"
                         onClick={() => { toggleTag(u.id); setTagQuery(''); setShowTagDD(false) }}
                         className={cn(
-                          'flex items-center gap-2.5 w-full px-3 py-2 hover:bg-pink-50 transition-colors text-left',
-                          tagged.includes(u.id) && 'bg-pink-50/80'
+                          'flex items-center gap-2.5 w-full px-3 py-2 hover:bg-white/[0.05] transition-colors text-left',
+                          tagged.includes(u.id) && 'bg-white/[0.03]'
                         )}
                       >
-                        <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center text-xs font-bold text-brand-600 overflow-hidden flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-blue-600/20 flex items-center justify-center text-xs font-bold text-blue-400 overflow-hidden flex-shrink-0">
                           {u.avatar_url
                             ? <Image src={u.avatar_url} alt="" width={28} height={28} className="object-cover" />
                             : u.username[0]?.toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 truncate">{u.username}</p>
-                          <p className="text-[10px] text-slate-400 truncate">{u.full_name}</p>
+                          <p className="text-sm font-semibold text-slate-200 truncate">{u.username}</p>
+                          <p className="text-[10px] text-slate-500 truncate">{u.full_name}</p>
                         </div>
                         {tagged.includes(u.id) && (
-                          <CheckCircle className="w-4 h-4 text-pink-500 ml-auto flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-blue-500 ml-auto flex-shrink-0" />
                         )}
                       </button>
                     ))}
@@ -333,14 +334,14 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
             {/* Progress bar */}
             {uploading && (
               <div className="space-y-1.5">
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-white/[0.05] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-pink-500 to-rose-500 rounded-full transition-all duration-500"
+                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 text-center">
-                  {done ? '✅ Memory saved!' : `Uploading… ${progress}%`}
+                <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 text-center">
+                  {done ? 'Memory saved' : `Uploading… ${progress}%`}
                 </p>
               </div>
             )}
@@ -348,7 +349,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-5 py-4 border-t border-slate-100 bg-slate-50/50 flex-shrink-0">
+        <div className="flex gap-3 px-5 py-4 border-t border-white/[0.06] bg-surface-2 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -362,7 +363,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
             form="upload-memory-form"
             id="submit-memory-btn"
             disabled={!file || uploading}
-            className="btn-primary flex-1 py-2.5 text-sm bg-gradient-to-r from-pink-500 to-rose-500 border-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary flex-1 py-2.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <span className="flex items-center gap-1.5">

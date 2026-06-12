@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { BarChart3, Clock, Target, TrendingUp, Calendar } from 'lucide-react'
+import { BarChart3, Clock, Target, TrendingUp, Calendar, Star, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { TestAttempt } from '@/types'
 import { formatRelativeTime, getSubjectIcon, cn } from '@/lib/utils'
@@ -48,10 +48,18 @@ export default function TestHistoryPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Total Attempts', value: attempts.length,     icon: '📝' },
-            { label: 'Avg Accuracy',   value: `${avgAccuracy}%`,   icon: '🎯' },
-            { label: 'Total Score',    value: totalScore,           icon: '⭐' },
-          ].map(s => <div key={s.label} className="stat-card"><span className="text-2xl">{s.icon}</span><p className="text-2xl font-bold text-slate-100">{s.value}</p><p className="text-xs text-slate-500">{s.label}</p></div>)}
+            { label: 'Total Attempts', value: attempts.length,     icon: <FileText className="w-5 h-5 text-blue-500 mx-auto" /> },
+            { label: 'Avg Accuracy',   value: `${avgAccuracy}%`,   icon: <Target className="w-5 h-5 text-red-500 mx-auto" /> },
+            { label: 'Total Score',    value: totalScore,           icon: <Star className="w-5 h-5 text-yellow-500 mx-auto fill-yellow-500/20" /> },
+          ].map(s => (
+            <div key={s.label} className="stat-card flex flex-col justify-between py-4 text-center">
+              <div className="mb-1">{s.icon}</div>
+              <div>
+                <p className="text-xl font-black text-slate-100">{s.value}</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-0.5">{s.label}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Chart */}

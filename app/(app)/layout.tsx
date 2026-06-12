@@ -20,13 +20,13 @@ import { PresenceProvider } from '@/lib/presence'
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV = [
-  { icon: Hash,           label: 'Chat',     subtitle: 'Channels',  href: '/chat',        id: 'nav-chat',        color: 'from-indigo-500 to-blue-500',    shadow: 'shadow-indigo-500/40' },
-  { icon: MessageSquare,  label: 'DMs',      subtitle: 'Messages',  href: '/dm',          id: 'nav-dm',          color: 'from-purple-500 to-pink-500',    shadow: 'shadow-purple-500/40' },
-  { icon: BookOpen,       label: 'Tests',    subtitle: 'Practice',  href: '/tests',       id: 'nav-tests',       color: 'from-cyan-500 to-teal-500',      shadow: 'shadow-cyan-500/40' },
-  { icon: Trophy,         label: 'Ranks',    subtitle: 'Leaders',   href: '/leaderboard', id: 'nav-leaderboard', color: 'from-amber-500 to-orange-500',   shadow: 'shadow-amber-500/40' },
-  { icon: FileText,       label: 'Notes',    subtitle: 'Study',     href: '/notes',       id: 'nav-notes',       color: 'from-emerald-500 to-green-500',  shadow: 'shadow-emerald-500/40' },
-  { icon: Images,         label: 'Memories', subtitle: 'Wall',      href: '/memories',    id: 'nav-memories',    color: 'from-pink-500 to-rose-500',      shadow: 'shadow-pink-500/40' },
-  { icon: Info,           label: 'About',    subtitle: 'Info',      href: '/about',       id: 'nav-about',       color: 'from-rose-500 to-red-500',       shadow: 'shadow-rose-500/40' },
+  { icon: Hash,           label: 'Chat',     subtitle: 'Channels',  href: '/chat',        id: 'nav-chat',        bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
+  { icon: MessageSquare,  label: 'DMs',      subtitle: 'Messages',  href: '/dm',          id: 'nav-dm',          bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
+  { icon: BookOpen,       label: 'Tests',    subtitle: 'Practice',  href: '/tests',       id: 'nav-tests',       bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
+  { icon: Trophy,         label: 'Ranks',    subtitle: 'Leaders',   href: '/leaderboard', id: 'nav-leaderboard', bgClass: 'bg-red-600',  shadowClass: 'shadow-red' },
+  { icon: FileText,       label: 'Notes',    subtitle: 'Study',     href: '/notes',       id: 'nav-notes',       bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
+  { icon: Images,         label: 'Memories', subtitle: 'Wall',      href: '/memories',    id: 'nav-memories',    bgClass: 'bg-red-600',  shadowClass: 'shadow-red' },
+  { icon: Info,           label: 'About',    subtitle: 'Info',      href: '/about',       id: 'nav-about',       bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -109,7 +109,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     'nav-icon-btn group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200',
                     isActive(item.href)
-                      ? `bg-gradient-to-br ${item.color} text-white shadow-lg ${item.shadow}`
+                      ? `${item.bgClass} text-white shadow-lg ${item.shadowClass}`
                       : 'text-slate-500 hover:bg-white/[0.08] hover:text-white'
                   )}
                 >
@@ -135,7 +135,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     'group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200 mt-1',
                     pathname.startsWith('/admin')
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/35'
+                      ? 'bg-red-600 text-white shadow-lg shadow-red'
                       : 'text-slate-400 hover:bg-white/[0.08] hover:text-white'
                   )}
                 >
@@ -246,13 +246,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               {/* Animated background blob */}
               {active && (
-                <span className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${item.color} opacity-15 nav-blob`} />
+                <span className={cn('absolute inset-0 rounded-2xl opacity-15 nav-blob', item.bgClass)} />
               )}
               {/* Icon wrapper */}
               <span className={cn(
                 'relative flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200',
                 active
-                  ? `bg-gradient-to-br ${item.color} text-white shadow-md ${item.shadow} nav-icon-pop`
+                  ? `${item.bgClass} text-white shadow-md ${item.shadowClass} nav-icon-pop`
                   : 'text-slate-500'
               )}>
                 <item.icon className="w-4 h-4" />

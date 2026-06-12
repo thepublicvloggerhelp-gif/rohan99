@@ -122,8 +122,8 @@ export default function ChannelChatPage() {
       <div className="flex h-full overflow-hidden">
         <ChannelSidebar currentChannelId={channelId} />
         <div className="flex-1 flex flex-col bg-surface-3 items-center justify-center p-6 text-center">
-          <span className="text-4xl mb-4">💬</span>
-          <h3 className="text-slate-200 font-semibold text-lg">Channel Not Found</h3>
+          <Hash className="w-12 h-12 text-slate-600 mb-4" />
+          <h3 className="text-slate-200 font-bold text-lg">Channel Not Found</h3>
           <p className="text-slate-500 text-sm max-w-sm mt-1">
             This channel does not exist or you do not have permission to view it.
           </p>
@@ -183,7 +183,7 @@ export default function ChannelChatPage() {
               </div>
 
               {onlineOthers.length === 0 ? (
-                <span className="text-[11px] text-slate-500 italic whitespace-nowrap">Everyone is touching grass 🌿</span>
+                <span className="text-[11px] text-slate-500 italic whitespace-nowrap">Everyone is touching grass</span>
               ) : (
                 onlineOthers.map(({ user, status }) => (
                   <div

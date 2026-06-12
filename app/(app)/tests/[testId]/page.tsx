@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Clock, ChevronLeft, ChevronRight, Flag, AlertCircle } from 'lucide-react'
+import { Clock, ChevronLeft, ChevronRight, Flag, AlertCircle, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Test, Question, Profile } from '@/types'
 import { cn } from '@/lib/utils'
@@ -92,9 +92,11 @@ export default function TakeTestPage() {
   if (!started) return (
     <div className="flex items-center justify-center h-full p-6">
       <div className="glass-card rounded-2xl p-8 max-w-md w-full text-center">
-        <span className="text-5xl block mb-4">📝</span>
-        <h1 className="text-2xl font-bold text-slate-100 mb-1">{test.title}</h1>
-        <p className="text-slate-400 text-sm mb-6">{test.subject} · {test.chapter}</p>
+        <div className="flex justify-center mb-4">
+          <FileText className="w-12 h-12 text-blue-500" />
+        </div>
+        <h1 className="text-2xl font-black text-slate-100 mb-1 uppercase tracking-tight">{test.title}</h1>
+        <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-6">{test.subject} · {test.chapter}</p>
         <div className="grid grid-cols-3 gap-3 mb-8">
           {[{ label: 'Questions', value: questions.length }, { label: 'Duration', value: `${test.duration_minutes} min` }, { label: 'Marks', value: test.total_marks }].map(s => (
             <div key={s.label} className="bg-white/[0.04] rounded-xl p-3">

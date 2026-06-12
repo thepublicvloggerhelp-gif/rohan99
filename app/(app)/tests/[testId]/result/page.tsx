@@ -47,11 +47,11 @@ export default function TestResultPage() {
   const mins      = Math.floor(attempt.time_taken / 60)
   const secs      = attempt.time_taken % 60
 
-  const grade = pct >= 90 ? { label: 'Outstanding! 🏆', color: 'text-yellow-400' }
-    : pct >= 75 ? { label: 'Excellent! 🌟',     color: 'text-green-400' }
-    : pct >= 60 ? { label: 'Good Job! 👍',       color: 'text-brand-400' }
-    : pct >= 40 ? { label: 'Keep Practicing 💪', color: 'text-orange-400' }
-    :             { label: 'Needs More Work 📚',  color: 'text-red-400' }
+  const grade = pct >= 90 ? { label: 'Outstanding!', color: 'text-yellow-400' }
+    : pct >= 75 ? { label: 'Excellent!',     color: 'text-green-400' }
+    : pct >= 60 ? { label: 'Good Job!',       color: 'text-brand-400' }
+    : pct >= 40 ? { label: 'Keep Practicing', color: 'text-orange-400' }
+    :             { label: 'Needs More Work',  color: 'text-red-400' }
 
   return (
     <div className="overflow-y-auto scroll-area h-full p-6">

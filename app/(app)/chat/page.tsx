@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { MessageSquare } from 'lucide-react'
 
 export default async function ChatPage() {
   const supabase = createClient()
@@ -29,8 +30,8 @@ export default async function ChatPage() {
   // If no channels exist at all, return a warning instead of crashing
   return (
     <div className="flex flex-col items-center justify-center h-full bg-surface-3 p-6 text-center">
-      <span className="text-4xl mb-4">💬</span>
-      <h3 className="text-slate-200 font-semibold text-lg">No Channels Found</h3>
+      <MessageSquare className="w-12 h-12 text-slate-600 mb-4" />
+      <h3 className="text-slate-200 font-bold text-lg">No Channels Found</h3>
       <p className="text-slate-500 text-sm max-w-sm mt-1">
         The database does not have any channels configured. Please run the channel seeding SQL in your Supabase Dashboard to populate the default rooms.
       </p>

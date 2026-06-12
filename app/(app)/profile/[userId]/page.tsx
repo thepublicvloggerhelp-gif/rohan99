@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, Trophy, Target, BookOpen, MessageSquare, Edit } from 'lucide-react'
+import { Calendar, Trophy, Target, BookOpen, MessageSquare, Edit, Star, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
@@ -110,15 +110,17 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { icon: '🏆', label: 'Rank',         value: stats.rank > 0 ? `#${stats.rank}` : '—' },
-            { icon: '📝', label: 'Tests',         value: stats.attempts },
-            { icon: '🎯', label: 'Avg Accuracy', value: `${stats.avgAccuracy}%` },
-            { icon: '⭐', label: 'Total Score',   value: stats.totalScore },
+            { icon: <Trophy className="w-5 h-5 text-amber-500 mx-auto" />, label: 'Rank',         value: stats.rank > 0 ? `#${stats.rank}` : '—' },
+            { icon: <FileText className="w-5 h-5 text-blue-500 mx-auto" />, label: 'Tests',         value: stats.attempts },
+            { icon: <Target className="w-5 h-5 text-red-500 mx-auto" />, label: 'Avg Accuracy', value: `${stats.avgAccuracy}%` },
+            { icon: <Star className="w-5 h-5 text-yellow-500 mx-auto fill-yellow-500/20" />, label: 'Total Score',   value: stats.totalScore },
           ].map(s => (
-            <div key={s.label} className="stat-card text-center">
-              <span className="text-xl">{s.icon}</span>
-              <p className="text-xl font-bold text-slate-100">{s.value}</p>
-              <p className="text-xs text-slate-500">{s.label}</p>
+            <div key={s.label} className="stat-card text-center flex flex-col justify-between py-4">
+              <div className="mb-1">{s.icon}</div>
+              <div>
+                <p className="text-lg font-black text-slate-100">{s.value}</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-0.5">{s.label}</p>
+              </div>
             </div>
           ))}
         </div>

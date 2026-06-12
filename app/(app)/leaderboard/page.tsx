@@ -47,11 +47,15 @@ export default function LeaderboardPage() {
     <div className="overflow-y-auto scroll-area h-full p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-3xl p-6 shadow-md mb-8 relative overflow-hidden text-center">
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">🏆</div>
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-10 text-8xl pointer-events-none select-none">👑</div>
-          <h1 className="text-3xl font-extrabold tracking-tight mb-1">Weekly Leaderboard</h1>
-          <p className="text-purple-100 text-sm max-w-md mx-auto">Ranked by total practice test scores. Participate in more tests to climb the community rank and lock in your JEE/NEET prep podium!</p>
+        <div className="bg-red-600 text-white rounded-2xl p-6 shadow-red mb-8 relative overflow-hidden text-center border border-red-500/20">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none select-none">
+            <Trophy className="w-24 h-24" />
+          </div>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none select-none">
+            <Crown className="w-24 h-24" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight mb-1 uppercase">Weekly Leaderboard</h1>
+          <p className="text-red-100 text-sm max-w-md mx-auto font-medium">Ranked by total practice test scores. Participate in more tests to climb the community rank and lock in your JEE/NEET prep podium!</p>
         </div>
 
         {/* Tabs */}
