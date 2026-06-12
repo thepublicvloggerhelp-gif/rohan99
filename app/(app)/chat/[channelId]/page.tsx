@@ -132,6 +132,10 @@ export default function ChannelChatPage() {
     )
   }
 
+  const onlineOthers = Object.values(presenceMap)
+    .filter(({ user }) => user.id !== profile?.id)
+    .sort((a, b) => b.lastActive - a.lastActive)
+
   return (
     <div className="flex h-full overflow-hidden">
       {/* Channel list sidebar */}
@@ -165,6 +169,41 @@ export default function ChannelChatPage() {
         </div>
 
         {channel?.name === 'general' && <CountdownBanner />}
+
+        {/* ── MOBILE ONLINE STRIP (only for #general, hidden on xl+) ── */}
+        {channel?.name === 'general' && (
+          <div className="xl:hidden flex-shrink-0 border-b border-white/[0.06] bg-[#0B0F19]/60 px-3 py-2">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              {/* Count badge */}
+              <div className="flex-shrink-0 flex items-center gap-1.5 bg-green-500/15 border border-green-500/30 rounded-full px-3 py-1">
+                <div className="w-2 h-2 rounded-full bg-green-500 status-dot online flex-shrink-0" />
+                <span className="text-[11px] font-bold text-green-400 whitespace-nowrap">
+                  {onlineOthers.length} online
+                </span>
+              </div>
+
+              {onlineOthers.length === 0 ? (
+                <span className="text-[11px] text-slate-500 italic whitespace-nowrap">Everyone is touching grass 🌿</span>
+              ) : (
+                onlineOthers.map(({ user, status }) => (
+                  <div
+                    key={user.id}
+                    className="flex-shrink-0 flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] rounded-full px-2.5 py-1 hover:bg-white/[0.07] transition-colors"
+                  >
+                    {/* Mini avatar */}
+                    <div className="relative w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center text-[9px] font-bold text-brand-400 flex-shrink-0 overflow-hidden">
+                      {user.avatar_url
+                        ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                        : getInitials(user.full_name)[0]}
+                      <div className={`absolute -bottom-[1px] -right-[1px] w-2 h-2 status-dot ${status}`} />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-300 whitespace-nowrap">{user.username}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Pinned messages panel */}
         {showPins && pinned.length > 0 && (
@@ -220,58 +259,52 @@ export default function ChannelChatPage() {
         )}
       </div>
 
-      {/* Online Now right sidebar (only for general channel) */}
+      {/* Online Now right sidebar (only for general channel, desktop only) */}
       {channel?.name === 'general' && (
         <div className="hidden xl:flex flex-col w-64 border-l border-slate-200/60 bg-surface-2 flex-shrink-0">
           <div className="p-4 border-b border-slate-200/60 h-14 flex items-center bg-surface-2 flex-shrink-0">
-            <h3 className="font-bold text-slate-50 text-sm">
-              Online Now ({Object.values(presenceMap).filter(({ user }) => user.id !== profile?.id).length})
-            </h3>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 status-dot online" />
+              <h3 className="font-bold text-slate-50 text-sm">
+                Online Now ({onlineOthers.length})
+              </h3>
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto scroll-area p-3 space-y-1 bg-surface-2/40">
-            {Object.values(presenceMap).filter(({ user }) => user.id !== profile?.id).length === 0 ? (
+            {onlineOthers.length === 0 ? (
               <div className="text-center py-12 text-slate-500 text-xs italic px-4">
                 Everyone is touching grass right now.
               </div>
             ) : (
-              Object.values(presenceMap)
-                .filter(({ user }) => user.id !== profile?.id)
-                .sort((a, b) => b.lastActive - a.lastActive)
-                .map(({ user, status, lastActive }) => {
-                  const minutesAgo = Math.max(0, Math.floor((Date.now() - lastActive) / 60000))
-                  const lastActiveText = minutesAgo === 0 ? 'Active just now' : `Last active: ${minutesAgo}m ago`
+              onlineOthers.map(({ user, status, lastActive }) => {
+                const minutesAgo = Math.max(0, Math.floor((Date.now() - lastActive) / 60000))
+                const lastActiveText = minutesAgo === 0 ? 'Active just now' : `Last active: ${minutesAgo}m ago`
 
-                  return (
-                    <div
-                      key={user.id}
-                      className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-900/[0.03] transition-all relative cursor-pointer"
-                    >
-                      {/* Avatar */}
-                      <div className="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm">
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} alt="" className="w-full h-full object-cover rounded-full animate-fade-in" />
-                        ) : (
-                          getInitials(user.full_name)
-                        )}
-                        {/* Status dot */}
-                        <div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${status}`} />
-                      </div>
-
-                      {/* Info */}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-slate-50 truncate">{user.username}</p>
-                        <p className="text-[10px] text-slate-400 font-semibold truncate capitalize">
-                          {status} · {user.stream}
-                        </p>
-                      </div>
-
-                      {/* Tooltip */}
-                      <div className="absolute right-4 bottom-10 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/95 text-white text-[10px] font-semibold px-2 py-1.5 rounded-xl border border-slate-700/60 shadow-2xl whitespace-nowrap">
-                        {lastActiveText}
-                      </div>
+                return (
+                  <div
+                    key={user.id}
+                    className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-900/[0.03] transition-all relative cursor-pointer"
+                  >
+                    <div className="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
+                      ) : (
+                        getInitials(user.full_name)
+                      )}
+                      <div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${status}`} />
                     </div>
-                  )
-                })
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-slate-50 truncate">{user.username}</p>
+                      <p className="text-[10px] text-slate-400 font-semibold truncate capitalize">
+                        {status} · {user.stream}
+                      </p>
+                    </div>
+                    <div className="absolute right-4 bottom-10 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/95 text-white text-[10px] font-semibold px-2 py-1.5 rounded-xl border border-slate-700/60 shadow-2xl whitespace-nowrap">
+                      {lastActiveText}
+                    </div>
+                  </div>
+                )
+              })
             )}
           </div>
         </div>

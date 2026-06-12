@@ -7,7 +7,7 @@ import Image from 'next/image'
 import {
   Hash, MessageSquare, BookOpen, Trophy, FileText, User,
   ShieldCheck, LogOut, Menu, X, ChevronRight, Settings,
-  Zap, Bell, Inbox, Info
+  Zap, Bell, Inbox, Info, Images
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile, Channel } from '@/types'
@@ -20,12 +20,13 @@ import { PresenceProvider } from '@/lib/presence'
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV = [
-  { icon: Hash,         label: 'Chat',         href: '/chat',         id: 'nav-chat' },
-  { icon: MessageSquare, label: 'Direct Messages', href: '/dm',        id: 'nav-dm' },
-  { icon: BookOpen,     label: 'Tests',         href: '/tests',        id: 'nav-tests' },
-  { icon: Trophy,       label: 'Leaderboard',   href: '/leaderboard',  id: 'nav-leaderboard' },
-  { icon: FileText,     label: 'Notes',         href: '/notes',        id: 'nav-notes' },
-  { icon: Info,         label: 'About',        href: '/about',        id: 'nav-about' },
+  { icon: Hash,           label: 'Chat',     subtitle: 'Channels',  href: '/chat',        id: 'nav-chat',        color: 'from-indigo-500 to-blue-500',    shadow: 'shadow-indigo-500/40' },
+  { icon: MessageSquare,  label: 'DMs',      subtitle: 'Messages',  href: '/dm',          id: 'nav-dm',          color: 'from-purple-500 to-pink-500',    shadow: 'shadow-purple-500/40' },
+  { icon: BookOpen,       label: 'Tests',    subtitle: 'Practice',  href: '/tests',       id: 'nav-tests',       color: 'from-cyan-500 to-teal-500',      shadow: 'shadow-cyan-500/40' },
+  { icon: Trophy,         label: 'Ranks',    subtitle: 'Leaders',   href: '/leaderboard', id: 'nav-leaderboard', color: 'from-amber-500 to-orange-500',   shadow: 'shadow-amber-500/40' },
+  { icon: FileText,       label: 'Notes',    subtitle: 'Study',     href: '/notes',       id: 'nav-notes',       color: 'from-emerald-500 to-green-500',  shadow: 'shadow-emerald-500/40' },
+  { icon: Images,         label: 'Memories', subtitle: 'Wall',      href: '/memories',    id: 'nav-memories',    color: 'from-pink-500 to-rose-500',      shadow: 'shadow-pink-500/40' },
+  { icon: Info,           label: 'About',    subtitle: 'Info',      href: '/about',       id: 'nav-about',       color: 'from-rose-500 to-red-500',       shadow: 'shadow-rose-500/40' },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -96,27 +97,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Nav icons */}
             <nav className="flex flex-col items-center gap-1.5 p-2 flex-1">
-              {NAV.map(item => (
+              {NAV.map((item, i) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   id={item.id}
                   title={item.label}
                   onClick={() => setSideOpen(false)}
+                  style={{ animationDelay: `${i * 40}ms` }}
                   className={cn(
-                    'group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200',
+                    'nav-icon-btn group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200',
                     isActive(item.href)
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/35'
-                      : 'text-slate-400 hover:bg-white/[0.08] hover:text-white'
+                      ? `bg-gradient-to-br ${item.color} text-white shadow-lg ${item.shadow}`
+                      : 'text-slate-500 hover:bg-white/[0.08] hover:text-white'
                   )}
                 >
                   <item.icon className="w-5 h-5" />
-                  {/* Active indicator */}
+                  {/* Active indicator bar */}
                   {isActive(item.href) && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-cyan-400 rounded-r-md" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-white/60 rounded-r-full nav-indicator" />
                   )}
                   {/* Tooltip */}
-                  <div className="absolute left-16 px-2.5 py-1.5 bg-[#0F172A]/95 border border-slate-700/60 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl">
+                  <div className="absolute left-14 px-2.5 py-1.5 bg-[#0F172A]/95 border border-slate-700/60 rounded-xl text-xs font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl">
                     {item.label}
                   </div>
                 </Link>
@@ -222,22 +224,46 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile bottom nav — CINEMATIC */}
       <nav className="mobile-nav lg:hidden">
-        {NAV.slice(0, 5).map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            id={`mobile-${item.id}`}
-            className={cn(
-              'flex flex-col items-center gap-1 transition-colors',
-              isActive(item.href) ? 'text-brand-400' : 'text-slate-500'
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{item.label.split(' ')[0]}</span>
-          </Link>
-        ))}
+        {NAV.slice(0, 5).map((item, i) => {
+          const active = isActive(item.href)
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              id={`mobile-${item.id}`}
+              style={{ animationDelay: `${i * 50}ms` }}
+              className={cn(
+                'mobile-nav-item flex flex-col items-center gap-0.5 relative px-1 py-0.5',
+                active ? 'mobile-nav-active' : 'text-slate-500'
+              )}
+            >
+              {/* Animated background blob */}
+              {active && (
+                <span className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${item.color} opacity-15 nav-blob`} />
+              )}
+              {/* Icon wrapper */}
+              <span className={cn(
+                'relative flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200',
+                active
+                  ? `bg-gradient-to-br ${item.color} text-white shadow-md ${item.shadow} nav-icon-pop`
+                  : 'text-slate-500'
+              )}>
+                <item.icon className="w-4 h-4" />
+              </span>
+              {/* Label */}
+              <span className={cn(
+                'text-[9px] font-black uppercase tracking-widest transition-all duration-200',
+                active ? 'text-white' : 'text-slate-600'
+              )}>
+                {item.label}
+              </span>
+              {/* Active dot */}
+              {active && <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white/80" />}
+            </Link>
+          )
+        })}
       </nav>
       </PresenceProvider>
     </AppCtx.Provider>

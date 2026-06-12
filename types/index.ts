@@ -199,3 +199,31 @@ export interface SubjectStats {
   avg_accuracy:   number
   best_score:     number
 }
+
+// ─── Memory Wall ──────────────────────────────────────────────────────────────
+
+export interface Memory {
+  id:           string
+  photo_url:    string
+  caption:      string | null
+  uploaded_by:  string
+  taken_at:     string | null
+  created_at:   string
+  // joins
+  uploader?:    Pick<Profile, 'id' | 'username' | 'full_name' | 'avatar_url'>
+  reactions?:   MemoryReaction[]
+  tags?:        MemoryTag[]
+}
+
+export interface MemoryReaction {
+  memory_id:  string
+  user_id:    string
+  emoji:      string
+  user?:      Pick<Profile, 'id' | 'username'>
+}
+
+export interface MemoryTag {
+  memory_id:  string
+  user_id:    string
+  user?:      Pick<Profile, 'id' | 'username' | 'avatar_url'>
+}
