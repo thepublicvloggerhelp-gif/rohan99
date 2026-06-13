@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-[#08090E] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Image with opacity fade */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-90">
         <Image
           src="/bg-group.png"
           alt="Community Background"

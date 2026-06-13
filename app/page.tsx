@@ -70,7 +70,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#08090E] text-slate-100 flex flex-col selection:bg-brand-500/10 overflow-x-hidden relative">
       {/* Background Image with opacity fade */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-90">
         <Image
           src="/bg-group.png"
           alt="Community Background"
