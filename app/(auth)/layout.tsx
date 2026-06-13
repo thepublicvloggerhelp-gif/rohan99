@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Background Image with opacity fade */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.15]">
         <Image
-          src="/bg-login.png"
+          src="/bg-group.png"
           alt="Community Background"
           fill
           priority
