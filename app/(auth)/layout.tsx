@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-[#08090E] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Image with opacity fade */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.15]">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.15]">
         <Image
           src="/bg-login.png"
           alt="Community Background"
@@ -14,8 +14,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           className="object-cover object-center"
         />
         {/* Blend gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08090E] via-transparent to-[#08090E]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08090E] via-[#08090E]/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#08090E] via-transparent to-[#08090E]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#08090E] via-transparent to-[#08090E]" />
       </div>
 
       {/* Background orbs */}

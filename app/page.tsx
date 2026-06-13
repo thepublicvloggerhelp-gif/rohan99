@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
   MessageSquare, BookOpen, Trophy, FileText, ArrowRight
@@ -67,20 +68,36 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-surface-1 text-slate-100 flex flex-col selection:bg-brand-500/10 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#08090E] text-slate-100 flex flex-col selection:bg-brand-500/10 overflow-x-hidden relative">
+      {/* Background Image with opacity fade */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.15]">
+        <Image
+          src="/bg-login.png"
+          alt="Community Background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        {/* Blend gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08090E] via-[#08090E]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#08090E] via-transparent to-[#08090E]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#08090E] via-transparent to-[#08090E]" />
+      </div>
+
       {/* Background decorations */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-brand-500/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
-      <div className="absolute top-[30%] right-[10%] w-[300px] h-[300px] rounded-full bg-purple-500/5 blur-[90px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-brand-500/5 blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none z-0" />
+      <div className="absolute top-[30%] right-[10%] w-[300px] h-[300px] rounded-full bg-purple-500/5 blur-[90px] pointer-events-none z-0" />
 
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-0" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full glass-card border-b border-slate-200/50 bg-white/60 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#08090E]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-full overflow-hidden border border-brand-500/20 flex items-center justify-center bg-slate-50 transition-all">
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-blue-600/30 flex items-center justify-center bg-white/[0.04] transition-all">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-cover object-top scale-[1.1] animate-logo" />
             </div>
             <span className="font-bold text-xl tracking-tight text-slate-50 group-hover:text-brand-600 transition-colors">YPSdudes</span>

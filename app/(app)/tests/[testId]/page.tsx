@@ -145,7 +145,7 @@ export default function TakeTestPage() {
 
       <div className="flex flex-col sm:flex-row flex-1 overflow-hidden">
         {/* Question panel */}
-        <div className="flex-1 overflow-y-auto scroll-area p-6">
+        <div className="flex-1 overflow-y-auto scroll-area p-6 pb-28 sm:pb-6">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xs text-slate-500 font-medium">Q {current + 1} of {questions.length}</span>

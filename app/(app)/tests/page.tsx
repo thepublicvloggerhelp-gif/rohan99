@@ -54,7 +54,7 @@ export default function TestsPage() {
   const display = (stream !== 'All' || subject !== 'All') ? filtered : streamTests
 
   return (
-    <div className="flex-1 overflow-y-auto scroll-area p-6">
+    <div className="flex-1 overflow-y-auto scroll-area p-6 pb-28 sm:pb-6">
       <div className="max-w-4xl mx-auto">
         {/* Header Banner */}
         <div className="bg-blue-600 text-white rounded-2xl p-6 shadow-brand mb-8 relative overflow-hidden border border-blue-500/20">

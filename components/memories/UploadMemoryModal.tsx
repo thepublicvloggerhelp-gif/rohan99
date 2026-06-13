@@ -143,7 +143,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/75 backdrop-blur-md"
@@ -151,7 +151,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full sm:max-w-lg bg-surface-2 border border-white/[0.06] rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[85vh] sm:max-h-[90vh] flex flex-col">
+      <div className="relative z-10 w-full sm:max-w-lg bg-surface-2 sm:border sm:border-white/[0.06] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden mt-auto sm:my-auto max-h-[90dvh] sm:max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-surface-2 flex-shrink-0">
           <div className="flex items-center gap-2">
