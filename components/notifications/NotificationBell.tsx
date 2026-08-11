@@ -13,6 +13,8 @@ export function NotificationBell() {
   const [unreadCount,   setUnreadCount]   = useState(0)
 
   useEffect(() => {
+    let channel: any
+
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
@@ -28,7 +30,7 @@ export function NotificationBell() {
       }
 
       // Realtime
-      const channel = supabase
+      channel = supabase
         .channel('notifications')
         .on('postgres_changes', {
           event: 'INSERT', schema: 'public', table: 'notifications',
@@ -38,9 +40,12 @@ export function NotificationBell() {
           setUnreadCount(c => c + 1)
         })
         .subscribe()
-      return () => { supabase.removeChannel(channel) }
     }
     load()
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [])
 
   const markAllRead = async () => {

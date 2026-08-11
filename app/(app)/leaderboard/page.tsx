@@ -58,7 +58,7 @@ export default function LeaderboardPage() {
           <div className="absolute left-4 top-1/2 -translate-y-1/2 opacity-15 pointer-events-none select-none">
             <Crown className="w-24 h-24" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight mb-1 uppercase">Weekly Leaderboard</h1>
+          <h1 className="text-3xl font-black tracking-tight mb-1 uppercase">All-Time Leaderboard</h1>
           <p className="text-red-100 text-sm max-w-md mx-auto font-medium">Ranked by total practice test scores. Participate in more tests to climb the community rank and lock in your JEE/NEET prep podium!</p>
         </div>
 

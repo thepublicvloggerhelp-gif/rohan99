@@ -66,6 +66,10 @@ export async function middleware(request: NextRequest) {
   )
 
   const { pathname } = request.nextUrl
+
+  // Skip middleware for API routes — they handle their own auth
+  if (pathname.startsWith('/api/')) return supabaseResponse
+
   const { data: { user } } = await supabase.auth.getUser()
 
   const publicRoutes = ['/login', '/signup', '/pending']

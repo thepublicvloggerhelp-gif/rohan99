@@ -131,7 +131,7 @@ export default function LandingPage() {
       <CountdownHero profile={profile} loading={loading} />
 
       {/* Features Section */}
-      <section className="py-24 bg-surface-2/40 border-t border-b border-slate-200/30 relative">
+      <section className="py-24 bg-[#08090E]/90 border-t border-b border-slate-200/30 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-bold text-slate-50 mb-4">Everything You Need to Excel</h2>
@@ -164,7 +164,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Counter Section */}
-      <section className="py-20 relative">
+      <section className="py-20 relative z-10 bg-[#08090E]/90">
         <div className="max-w-7xl mx-auto px-6">
           <div className="glass-card rounded-3xl p-8 sm:p-12 border border-slate-200/50 bg-gradient-to-br from-surface-2 to-surface-3 relative overflow-hidden">
             <div className="absolute top-[-50%] right-[-30%] w-[60%] h-[150%] rounded-full bg-brand-500/5 blur-[100px] pointer-events-none" />
@@ -181,7 +181,7 @@ export default function LandingPage() {
       </section>
 
       {/* Verification / Sign up Guide */}
-      <section className="py-16 max-w-4xl mx-auto px-6">
+      <section className="py-16 max-w-4xl mx-auto px-6 relative z-10 bg-[#08090E]/90">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-50">How to Join YPSdudes</h2>
           <p className="text-slate-400 text-sm mt-2">Access is strictly moderated for school peers.</p>
@@ -207,7 +207,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200/50 bg-surface-2 py-8 text-center text-slate-500 text-xs px-6">
+      <footer className="mt-auto border-t border-slate-200/50 bg-[#08090E]/90 py-8 text-center text-slate-500 text-xs px-6 relative z-10">
         <p className="mb-2">YPSdudes Community © {new Date().getFullYear()} · Class of 2026 JEE & NEET</p>
         <p className="text-slate-400">Protected by Row Level Security (RLS) & Student Identity Verification</p>
       </footer>

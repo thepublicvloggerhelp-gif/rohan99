@@ -107,6 +107,12 @@ export async function POST(req: NextRequest) {
     // Build & sanitize storage path
     const ext = file.name.split('.').pop() ?? 'bin'
     const rawPath = path ?? `${user.id}/${Date.now()}.${ext}`
+
+    // Security: ensure path is scoped to the authenticated user's folder
+    if (path && !rawPath.startsWith(user.id)) {
+      return NextResponse.json({ error: 'Cannot upload to another user\'s folder' }, { status: 403 })
+    }
+
     const uploadPath = sanitizeKey(rawPath)
 
     if (!uploadPath) {

@@ -30,9 +30,9 @@ export default function MemoriesPage() {
           .from('memories')
           .select(`
             *,
-            uploader:profiles!uploaded_by(id, username, full_name, avatar_url),
+            uploader:profiles(id, username, full_name, avatar_url),
             reactions:memory_reactions(memory_id, user_id, emoji),
-            tags:memory_tags(memory_id, user_id, user:profiles!user_id(id, username, avatar_url))
+            tags:memory_tags(memory_id, user_id, user:profiles(id, username, avatar_url))
           `)
           .order('created_at', { ascending: false }),
       ])

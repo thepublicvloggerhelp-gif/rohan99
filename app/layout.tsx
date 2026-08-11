@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: 'Private community for Class 12 JEE and NEET aspirants of Yugantar Public School, Rajnandgaon.',
   keywords: ['JEE', 'NEET', 'YPS', 'Yugantar Public School', 'Rajnandgaon', 'study community'],
   authors: [{ name: 'YPS Team' }],
+}
+
+export const viewport: Viewport = {
   themeColor: '#08090E',
 }
 
