@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { Clock, CheckCircle, Zap, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function PendingPage() {
   const router   = useRouter()
@@ -12,17 +14,25 @@ export default function PendingPage() {
 
   useEffect(() => {
     const checkStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        logError('pending auth check', authError)
+        toast.error(getErrorMessage(authError))
+        return
+      }
       if (!user) {
         router.push('/login')
         return
       }
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('status')
         .eq('id', user.id)
         .single()
-      if (profile?.status === 'approved') {
+      if (error) {
+        logError('pending profile check', error)
+        toast.error(getErrorMessage(error))
+      } else if (profile?.status === 'approved') {
         router.replace('/chat')
       }
     }

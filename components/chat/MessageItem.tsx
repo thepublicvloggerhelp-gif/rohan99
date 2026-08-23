@@ -8,6 +8,7 @@ import { Message } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { formatMessageTime, getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 interface Props {
   message:          Message
@@ -42,14 +43,27 @@ export function MessageItem({
     setShowEmoji(false)
     const existing = message.reactions?.find((r: any) => r.user_id === currentUserId && r.emoji === emoji)
     if (existing) {
-      await supabase.from('message_reactions').delete().eq('id', existing.id)
+      const { error } = await supabase.from('message_reactions').delete().eq('id', existing.id)
+      if (error) {
+        logError('remove message reaction', error)
+        toast.error(getErrorMessage(error))
+      }
     } else {
-      await supabase.from('message_reactions').insert({ message_id: message.id, user_id: currentUserId, emoji })
+      const { error } = await supabase.from('message_reactions').insert({ message_id: message.id, user_id: currentUserId, emoji })
+      if (error) {
+        logError('add message reaction', error)
+        toast.error(getErrorMessage(error))
+      }
     }
   }
 
   const handlePin = async () => {
-    await supabase.from('pinned_messages').insert({ channel_id: channelId, message_id: message.id, pinned_by: currentUserId })
+    const { error } = await supabase.from('pinned_messages').insert({ channel_id: channelId, message_id: message.id, pinned_by: currentUserId })
+    if (error) {
+      logError('pin message', error)
+      toast.error(getErrorMessage(error))
+      return
+    }
     toast.success('Pinned')
   }
 

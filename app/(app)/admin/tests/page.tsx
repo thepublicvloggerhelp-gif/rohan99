@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const testSchema = z.object({
   title:            z.string().min(3),
@@ -49,18 +50,27 @@ export default function AdminTestsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) setMyId(user.id)
-      const { data } = await supabase.from('tests').select('*').order('created_at', { ascending: false })
-      if (data) setTests(data)
-      setLoading(false)
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (user) setMyId(user.id)
+        const { data, error } = await supabase.from('tests').select('*').order('created_at', { ascending: false })
+        if (error) throw error
+        if (data) setTests(data)
+      } catch (err) {
+        logError('admin tests load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
 
   const loadQuestions = async (testId: string) => {
     if (questions[testId]) return
-    const { data } = await supabase.from('questions').select('*').eq('test_id', testId).order('order_index')
+    const { data, error } = await supabase.from('questions').select('*').eq('test_id', testId).order('order_index')
+    if (error) { logError('admin questions load', error); toast.error(getErrorMessage(error)); return }
     if (data) setQuestions(prev => ({ ...prev, [testId]: data }))
   }
 
@@ -87,14 +97,16 @@ export default function AdminTestsPage() {
   }
 
   const togglePublish = async (test: Test) => {
-    await supabase.from('tests').update({ is_published: !test.is_published }).eq('id', test.id)
+    const { error } = await supabase.from('tests').update({ is_published: !test.is_published }).eq('id', test.id)
+    if (error) { logError('toggle test publish', error); toast.error(getErrorMessage(error)); return }
     setTests(prev => prev.map(t => t.id === test.id ? { ...t, is_published: !test.is_published } : t))
     toast.success(test.is_published ? 'Test unpublished' : 'Test published')
   }
 
   const deleteTest = async (testId: string) => {
     if (!confirm('Delete this test and all its questions?')) return
-    await supabase.from('tests').delete().eq('id', testId)
+    const { error } = await supabase.from('tests').delete().eq('id', testId)
+    if (error) { logError('delete test', error); toast.error(getErrorMessage(error)); return }
     setTests(prev => prev.filter(t => t.id !== testId))
     toast.success('Test deleted')
   }
@@ -112,7 +124,8 @@ export default function AdminTestsPage() {
   }
 
   const deleteQuestion = async (qId: string, testId: string) => {
-    await supabase.from('questions').delete().eq('id', qId)
+    const { error } = await supabase.from('questions').delete().eq('id', qId)
+    if (error) { logError('delete question', error); toast.error(getErrorMessage(error)); return }
     setQuestions(prev => ({ ...prev, [testId]: (prev[testId] ?? []).filter(q => q.id !== qId) }))
     toast.success('Question deleted')
   }

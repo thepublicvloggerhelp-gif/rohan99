@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { MOVIES, TV_SHOWS, ALL_CONTENT, GENRES } from "@/lib/staticData";
+import { logError } from "@/lib/errors";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TYPES
@@ -335,7 +336,11 @@ export default function RohansApp() {
     try {
       const r = localStorage.getItem("rfc_reviews"); if (r) setReviews(JSON.parse(r));
       const l = localStorage.getItem("rfc_mylist");  if (l) setMyList(JSON.parse(l));
-    } catch {}
+    } catch (err) {
+      logError("RohansApp local storage parse", err);
+      localStorage.removeItem("rfc_reviews");
+      localStorage.removeItem("rfc_mylist");
+    }
   }, []);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3200); };

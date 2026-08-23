@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Test, Question, Profile } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 type Answers = Record<string, 'A' | 'B' | 'C' | 'D'>
 
@@ -28,17 +29,27 @@ export default function TakeTestPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const [{ data: prof }, { data: t }, { data: qs }] = await Promise.all([
+      try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+      const [{ data: prof, error: profileError }, { data: t, error: testError }, { data: qs, error: questionsError }] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('tests').select('*').eq('id', testId).single(),
         supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
       ])
+      if (profileError) throw profileError
+      if (testError) throw testError
+      if (questionsError) throw questionsError
       if (prof) setProfile(prof)
       if (t)    { setTest(t); setTimeLeft(t.duration_minutes * 60) }
       if (qs)   setQuestions(qs)
-      setLoading(false)
+      } catch (err) {
+        logError('test load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [testId])
@@ -78,7 +89,11 @@ export default function TakeTestPage() {
       selected_option: answers[q.id] ?? null,
       is_correct:      answers[q.id] === q.correct_option,
     }))
-    await supabase.from('attempt_answers').insert(answerRows)
+    const { error: answersError } = await supabase.from('attempt_answers').insert(answerRows)
+    if (answersError) {
+      logError('save attempt answers', answersError)
+      toast.warning('Your per-question answers could not be recorded.')
+    }
 
     router.push(`/tests/${testId}/result?attempt=${attempt.id}`)
   }, [answers, questions, profile, test, testId, submitted, timeLeft])

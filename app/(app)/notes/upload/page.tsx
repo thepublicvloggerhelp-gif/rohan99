@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { toast } from 'sonner'
 import { formatFileSize, getSubjectIcon } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics', 'Biology'] as const
 
@@ -49,8 +50,9 @@ export default function UploadNotePage() {
     if (!file) { toast.error('Please select a file'); return }
     setSending(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { toast.error('Not authenticated'); return }
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
 
       const fileType = file.type === 'application/pdf' ? 'pdf' : 'image'
       
@@ -80,8 +82,9 @@ export default function UploadNotePage() {
       let fileUrl: string
       try {
         fileUrl = await uploadFile(file, 'notes', uploadPath)
-      } catch (err: any) {
-        toast.error('Upload failed: ' + err.message)
+      } catch (err) {
+        logError('note file upload', err)
+        toast.error('Upload failed: ' + getErrorMessage(err))
         return
       }
 

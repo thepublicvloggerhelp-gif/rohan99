@@ -11,6 +11,7 @@ import { Profile, DirectMessage } from '@/types'
 import { formatMessageTime, getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { usePresence } from '@/lib/presence'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 export default function DMConversationPage() {
   const params         = useParams()
@@ -33,12 +34,14 @@ export default function DMConversationPage() {
     const load = async () => {
       setLoading(true)
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
 
         // Fetch own profile
-        const { data: prof } = await supabase
+        const { data: prof, error: profileError } = await supabase
           .from('profiles').select('*').eq('id', user.id).single()
+        if (profileError) throw profileError
         if (prof) setMe(prof)
 
         // Step 1: Get all participant user_ids for this conversation (simple flat query)
@@ -53,11 +56,12 @@ export default function DMConversationPage() {
         const otherUserId = parts?.find((p: any) => p.user_id !== user.id)?.user_id
         if (otherUserId) {
           // Step 3: Fetch the other user's profile separately
-          const { data: otherProf } = await supabase
+          const { data: otherProf, error: otherProfileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', otherUserId)
             .single()
+          if (otherProfileError) logError('DM other profile load', otherProfileError)
           if (otherProf) setOther(otherProf as Profile)
         }
 
@@ -73,11 +77,12 @@ export default function DMConversationPage() {
 
         // Step 5: Enrich each message with sender profile
         const senderIds = Array.from(new Set((msgs || []).map((m: any) => m.sender_id as string)))
-        const { data: senderProfiles } = await supabase
+        const { data: senderProfiles, error: senderProfilesError } = await supabase
           .from('profiles')
           .select('*')
           .in('id', senderIds)
 
+        if (senderProfilesError) logError('DM sender profiles load', senderProfilesError)
         const profileMap: Record<string, any> = {}
         senderProfiles?.forEach((p: any) => { profileMap[p.id] = p })
 
@@ -88,6 +93,9 @@ export default function DMConversationPage() {
 
         setMessages(enriched)
         setTimeout(() => bottomRef.current?.scrollIntoView(), 100)
+      } catch (err) {
+        logError('DM conversation load', err)
+        toast.error(getErrorMessage(err))
       } finally {
         setLoading(false)
       }
@@ -105,11 +113,12 @@ export default function DMConversationPage() {
       }, async payload => {
         const newMsg = payload.new as any
         // Fetch sender profile separately
-        const { data: senderProf } = await supabase
+        const { data: senderProf, error } = await supabase
           .from('profiles')
           .select('id, username, full_name, avatar_url')
           .eq('id', newMsg.sender_id)
           .single()
+        if (error) logError('DM realtime sender profile load', error)
         setMessages(prev => [...prev, { ...newMsg, sender: senderProf }])
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
       })

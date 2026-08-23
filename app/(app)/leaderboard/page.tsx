@@ -7,6 +7,8 @@ import { Trophy, Medal, Crown, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LeaderboardEntry, Stream } from '@/types'
 import { getInitials, cn } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 const TABS: { label: string; value: string }[] = [
   { label: 'Overall', value: 'All' },
@@ -23,14 +25,18 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) { logError('leaderboard auth check', authError); toast.error(getErrorMessage(authError)) }
       if (user) setMyId(user.id)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('leaderboard')
         .select('*')
         .order('total_score', { ascending: false })
-      if (data) setEntries(data as LeaderboardEntry[])
+      if (error) {
+        logError('leaderboard load', error)
+        toast.error(getErrorMessage(error))
+      } else if (data) setEntries(data as LeaderboardEntry[])
       setLoading(false)
     }
     load()

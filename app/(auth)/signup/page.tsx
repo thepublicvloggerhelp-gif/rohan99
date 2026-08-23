@@ -11,6 +11,7 @@ import { Eye, EyeOff, Loader2, Zap, Upload, CheckCircle, FlaskConical, Calculato
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const schema = z.object({
   full_name: z.string().min(2, 'Full name required'),
@@ -82,13 +83,19 @@ export default function SignupPage() {
         if (!uploadErr && uploadData) {
           const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(uploadData.path)
           const avatarUrl = urlData.publicUrl
-          await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', userId)
+          const { error: profileError } = await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', userId)
+          if (profileError) {
+            logError('signup avatar profile update', profileError)
+            toast.error(getErrorMessage(profileError))
+            return
+          }
         }
       }
 
       router.push('/chat')
-    } catch {
-      toast.error('Something went wrong. Please try again.')
+    } catch (err) {
+      logError('signup', err)
+      toast.error(getErrorMessage(err))
     }
   }
 

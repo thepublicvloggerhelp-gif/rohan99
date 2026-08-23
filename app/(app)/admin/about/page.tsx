@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 export default function AdminAboutPage() {
   const supabase = createClient()
@@ -43,8 +44,9 @@ export default function AdminAboutPage() {
           })
           setEdits(initialEdits)
         }
-      } catch (err: any) {
-        toast.error('Failed to load users: ' + err.message)
+      } catch (err) {
+        logError('admin about users load', err)
+        toast.error(getErrorMessage(err))
       } finally {
         setLoading(false)
       }

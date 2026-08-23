@@ -15,6 +15,8 @@ import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { cn } from '@/lib/utils'
 import { AppCtx } from '@/lib/context'
 import { PresenceProvider } from '@/lib/presence'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 // AppCtx is now imported from '@/lib/context'
 
@@ -38,12 +40,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      if (data) setProfile(data)
-      const { data: ch } = await supabase.from('channels').select('*').order('category').order('name')
-      if (ch) setChannels(ch)
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+        const { data, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+        if (profileError) throw profileError
+        if (data) setProfile(data)
+        const { data: ch, error: channelsError } = await supabase.from('channels').select('*').order('category').order('name')
+        if (channelsError) throw channelsError
+        if (ch) setChannels(ch)
+      } catch (err) {
+        logError('app layout load', err)
+        toast.error(getErrorMessage(err))
+      }
     }
     load()
   }, [])

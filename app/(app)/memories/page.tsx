@@ -8,6 +8,8 @@ import { MemoryCard } from '@/components/memories/MemoryCard'
 import { UploadMemoryModal } from '@/components/memories/UploadMemoryModal'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function MemoriesPage() {
   const supabase = createClient()
@@ -21,12 +23,14 @@ export default function MemoriesPage() {
   // ── Load data ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
 
-      const [{ data: prof }, { data: mems }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase
+        const [{ data: prof, error: profileError }, { data: mems, error: memoriesError }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          supabase
           .from('memories')
           .select(`
             *,
@@ -35,10 +39,12 @@ export default function MemoriesPage() {
             tags:memory_tags(memory_id, user_id, user:profiles(id, username, avatar_url))
           `)
           .order('created_at', { ascending: false }),
-      ])
+        ])
 
-      if (prof)  setProfile(prof)
-      if (mems)  {
+        if (profileError) throw profileError
+        if (memoriesError) throw memoriesError
+        if (prof) setProfile(prof)
+        if (mems) {
         setMemories(mems)
 
         // Pick "Memory of the Day" — random pick, seeded per calendar day
@@ -57,9 +63,13 @@ export default function MemoriesPage() {
             setMotd(pick)
           }
         }
+        }
+      } catch (err) {
+        logError('memories load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
       }
-
-      setLoading(false)
     }
     load()
   }, [])

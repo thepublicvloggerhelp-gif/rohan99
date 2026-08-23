@@ -6,6 +6,8 @@ import { Users, BookOpen, FileText, ShieldCheck, Bell, TrendingUp, Clock, Info }
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function AdminDashboard() {
   const supabase = createClient()
@@ -15,13 +17,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const load = async () => {
+      try {
       const [
-        { count: pendingCount },
-        { count: totalUsers },
-        { count: tests },
-        { count: notes },
-        { count: messages },
-        { data: pendingUsers },
+        { count: pendingCount, error: pendingCountError },
+        { count: totalUsers, error: totalUsersError },
+        { count: tests, error: testsError },
+        { count: notes, error: notesError },
+        { count: messages, error: messagesError },
+        { data: pendingUsers, error: pendingUsersError },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
@@ -31,6 +34,19 @@ export default function AdminDashboard() {
         supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
       ])
 
+      ;[
+        ['pending user count', pendingCountError],
+        ['total user count', totalUsersError],
+        ['test count', testsError],
+        ['note count', notesError],
+        ['message count', messagesError],
+        ['pending users', pendingUsersError],
+      ].forEach(([context, error]) => {
+        if (error) {
+          logError(`admin ${context}`, error)
+          toast.error(getErrorMessage(error))
+        }
+      })
       setStats({
         pending:  pendingCount ?? 0,
         total:    totalUsers   ?? 0,
@@ -39,19 +55,26 @@ export default function AdminDashboard() {
         messages: messages     ?? 0,
       })
       if (pendingUsers) setPending(pendingUsers)
-      setLoading(false)
+      } catch (err) {
+        logError('admin dashboard load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
 
   const approveUser = async (userId: string) => {
-    await supabase.from('profiles').update({ status: 'approved' }).eq('id', userId)
+    const { error } = await supabase.from('profiles').update({ status: 'approved' }).eq('id', userId)
+    if (error) { logError('approve user', error); toast.error(getErrorMessage(error)); return }
     setPending(prev => prev.filter(p => p.id !== userId))
     setStats(s => ({ ...s, pending: s.pending - 1 }))
   }
 
   const rejectUser = async (userId: string) => {
-    await supabase.from('profiles').update({ status: 'rejected' }).eq('id', userId)
+    const { error } = await supabase.from('profiles').update({ status: 'rejected' }).eq('id', userId)
+    if (error) { logError('reject user', error); toast.error(getErrorMessage(error)); return }
     setPending(prev => prev.filter(p => p.id !== userId))
     setStats(s => ({ ...s, pending: s.pending - 1 }))
   }

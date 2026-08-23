@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const STATUS_FILTERS = ['all', 'pending', 'approved', 'banned', 'rejected'] as const
 
@@ -21,7 +22,11 @@ export default function AdminUsersPage() {
   const load = async () => {
     let q = supabase.from('profiles').select('*').order('created_at', { ascending: false })
     if (filter !== 'all') q = q.eq('status', filter)
-    const { data } = await q
+    const { data, error } = await q
+    if (error) {
+      logError('admin users load', error)
+      toast.error(getErrorMessage(error))
+    }
     if (data) setUsers(data)
     setLoading(false)
   }
@@ -60,7 +65,12 @@ export default function AdminUsersPage() {
   }
 
   const sendNotification = async (userId: string, title: string, message: string) => {
-    await supabase.from('notifications').insert({ user_id: userId, title, message, type: 'admin' })
+    const { error } = await supabase.from('notifications').insert({ user_id: userId, title, message, type: 'admin' })
+    if (error) {
+      logError('send user notification', error)
+      toast.error(getErrorMessage(error))
+      return
+    }
     toast.success('Notification sent')
   }
 

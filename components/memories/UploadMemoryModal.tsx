@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Profile, Memory } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 interface Props {
   currentUser: Profile
@@ -37,12 +38,24 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
   const dropRef      = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('status', 'approved')
-      .neq('id', currentUser.id)
-      .then(({ data }) => { if (data) setAllUsers(data) })
+    void (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('status', 'approved')
+          .neq('id', currentUser.id)
+        if (error) {
+          logError('memory tag user load', error)
+          toast.error(getErrorMessage(error))
+          return
+        }
+        if (data) setAllUsers(data)
+      } catch (err) {
+        logError('memory tag user load', err)
+        toast.error(getErrorMessage(err))
+      }
+    })()
   }, [])
 
   // Generate preview when file is chosen
@@ -111,9 +124,10 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
 
       // 3. Insert tags
       if (tagged.length > 0) {
-        await supabase
+        const { error: tagsErr } = await supabase
           .from('memory_tags')
           .insert(tagged.map(uid => ({ memory_id: memRow.id, user_id: uid })))
+        if (tagsErr) throw tagsErr
       }
       setProgress(100)
       setDone(true)
@@ -135,8 +149,9 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
         onClose()
       }, 800)
 
-    } catch (err: any) {
-      toast.error(err.message ?? 'Something went wrong')
+    } catch (err) {
+      logError('upload memory', err)
+      toast.error(getErrorMessage(err))
       setUploading(false)
       setProgress(0)
     }

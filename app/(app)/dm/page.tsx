@@ -9,6 +9,8 @@ import { Profile } from '@/types'
 import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
 import { NewDMModal } from '@/components/chat/NewDMModal'
 import { usePresence } from '@/lib/presence'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function DMIndexPage() {
   const supabase = createClient()
@@ -25,10 +27,12 @@ export default function DMIndexPage() {
       try {
         setLoading(true)
         setError(null)
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
 
-        const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+        const { data: prof, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+        if (profileError) throw profileError
         if (prof) setProfile(prof)
 
         // Step 1: Get conversation IDs for this user (simple query, no joins)
@@ -45,23 +49,27 @@ export default function DMIndexPage() {
         // Step 2: For each conversation, get the other participant's user_id (simple query)
         const convData = await Promise.all(convIds.map(async (cid: string) => {
           // Get all participant user_ids for this conversation
-          const { data: allParts } = await supabase
+          const { data: allParts, error: partsError } = await supabase
             .from('dm_participants')
             .select('user_id')
             .eq('conversation_id', cid)
 
+          if (partsError) {
+            logError(`DM participants load ${cid}`, partsError)
+            return null
+          }
           const otherUserId = allParts?.find((p: any) => p.user_id !== user.id)?.user_id
           if (!otherUserId) return null
 
           // Step 3: Fetch the other user's profile separately
-          const { data: otherProfile } = await supabase
+          const { data: otherProfile, error: profileError } = await supabase
             .from('profiles')
             .select('id, username, full_name, avatar_url, stream')
             .eq('id', otherUserId)
             .single()
 
           // Step 4: Fetch the last message for this conversation
-          const { data: lastMsg } = await supabase
+          const { data: lastMsg, error: messageError } = await supabase
             .from('direct_messages')
             .select('content, created_at, sender_id')
             .eq('conversation_id', cid)
@@ -69,12 +77,15 @@ export default function DMIndexPage() {
             .limit(1)
             .maybeSingle()
 
+          if (profileError) logError(`DM other participant profile ${cid}`, profileError)
+          if (messageError) logError(`DM last message ${cid}`, messageError)
           return { id: cid, other: otherProfile, lastMsg }
         }))
 
         setConversations(convData.filter(Boolean))
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err) {
+        logError('DM list load', err)
+        setError(getErrorMessage(err))
       } finally {
         setLoading(false)
       }

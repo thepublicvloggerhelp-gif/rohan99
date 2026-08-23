@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { TestAttempt } from '@/types'
 import { formatRelativeTime, getSubjectIcon, cn } from '@/lib/utils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function TestHistoryPage() {
   const supabase = createClient()
@@ -15,15 +17,23 @@ export default function TestHistoryPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase.from('test_attempts')
+      try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+      const { data, error } = await supabase.from('test_attempts')
         .select('*, test:tests(title, subject, stream, chapter)')
         .eq('user_id', user.id)
         .order('completed_at', { ascending: false })
         .limit(50)
+      if (error) throw error
       if (data) setAttempts(data)
-      setLoading(false)
+      } catch (err) {
+        logError('test history load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])

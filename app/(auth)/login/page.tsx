@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, Loader2, Zap, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const schema = z.object({
   email:    z.string().email('Invalid email address'),
@@ -41,9 +42,9 @@ function LoginForm() {
         return
       }
       window.location.href = '/chat'
-    } catch (err: any) {
-      toast.error(err.message || 'An unexpected error occurred during sign in.')
-      console.error(err)
+    } catch (err) {
+      logError('sign in', err)
+      toast.error(getErrorMessage(err))
     }
   }
 
