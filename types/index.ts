@@ -227,3 +227,38 @@ export interface MemoryTag {
   user_id:    string
   user?:      Pick<Profile, 'id' | 'username' | 'avatar_url'>
 }
+
+// ─── Social Feed ──────────────────────────────────────────────────────────────
+
+export type FeedAuthor = Pick<Profile, 'id' | 'username' | 'full_name' | 'avatar_url' | 'stream' | 'role'>
+
+export interface Post {
+  id:          string
+  author_id:   string
+  content:     string
+  image_url:   string | null
+  mood:        string | null
+  is_deleted:  boolean
+  created_at:  string
+  updated_at:  string
+  // joins
+  author?:     FeedAuthor
+  likes?:      PostLike[]
+  comments?:   PostComment[]
+}
+
+export interface PostLike {
+  post_id:     string
+  user_id:     string
+  created_at?: string
+}
+
+export interface PostComment {
+  id:          string
+  post_id:     string
+  author_id:   string
+  content:     string
+  created_at:  string
+  // joins
+  author?:     FeedAuthor
+}

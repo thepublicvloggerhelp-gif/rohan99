@@ -405,6 +405,15 @@
   .animate-bounce-dot-2 { animation: bounce-dot 1.4s ease-in-out 0.16s infinite; }
   .animate-bounce-dot-3 { animation: bounce-dot 1.4s ease-in-out 0.32s infinite; }
 
+  /* ── FEED LIKE ──────────────────────────────────────────────────────────── */
+  @keyframes like-pop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.35); }
+    75%  { transform: scale(0.92); }
+    100% { transform: scale(1); }
+  }
+  .like-pop { animation: like-pop 0.32s cubic-bezier(0.34,1.56,0.64,1); }
+
   /* ── FADE IN ────────────────────────────────────────────────────────────── */
   @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
   .animate-fade-in { animation: fade-in 0.3s ease-out; }

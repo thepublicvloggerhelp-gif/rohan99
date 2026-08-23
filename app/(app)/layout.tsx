@@ -20,6 +20,7 @@ import { PresenceProvider } from '@/lib/presence'
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const NAV = [
+  { icon: Zap,            label: 'Feed',     subtitle: 'Squad',     href: '/feed',        id: 'nav-feed',        bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
   { icon: Hash,           label: 'Chat',     subtitle: 'Channels',  href: '/chat',        id: 'nav-chat',        bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
   { icon: MessageSquare,  label: 'DMs',      subtitle: 'Messages',  href: '/dm',          id: 'nav-dm',          bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },
   { icon: BookOpen,       label: 'Tests',    subtitle: 'Practice',  href: '/tests',       id: 'nav-tests',       bgClass: 'bg-blue-600', shadowClass: 'shadow-brand' },

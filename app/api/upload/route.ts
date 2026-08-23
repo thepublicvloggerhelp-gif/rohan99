@@ -43,7 +43,7 @@ const adminSupabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const ALLOWED_BUCKETS = ['avatars', 'chat-images', 'notes', 'memories'] as const
+const ALLOWED_BUCKETS = ['avatars', 'chat-images', 'notes', 'memories', 'posts'] as const
 type Bucket = typeof ALLOWED_BUCKETS[number]
 
 const BUCKET_LIMITS: Record<Bucket, number> = {
@@ -51,6 +51,7 @@ const BUCKET_LIMITS: Record<Bucket, number> = {
   'chat-images': 5 * 1024 * 1024,   // 5MB
   'notes':       20 * 1024 * 1024,  // 20MB
   'memories':    10 * 1024 * 1024,  // 10MB
+  'posts':       10 * 1024 * 1024,  // 10MB
 }
 
 const ALLOWED_TYPES: Record<Bucket, string[]> = {
@@ -58,6 +59,7 @@ const ALLOWED_TYPES: Record<Bucket, string[]> = {
   'chat-images': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   'notes':       ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
   'memories':    ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
+  'posts':       ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
 }
 
 export async function POST(req: NextRequest) {
