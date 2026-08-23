@@ -10,6 +10,8 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { CountdownHero } from '@/components/CountdownHero'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function LandingPage() {
   const supabase = createClient()
@@ -19,13 +21,16 @@ export default function LandingPage() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
         if (user) {
-          const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+          const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+          if (error) throw error
           if (data) setProfile(data)
         }
-      } catch (e) {
-        console.error(e)
+      } catch (err) {
+        logError('landing page user check', err)
+        toast.error(getErrorMessage(err))
       } finally {
         setLoading(false)
       }

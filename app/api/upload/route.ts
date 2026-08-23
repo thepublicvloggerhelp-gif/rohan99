@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { logError } from '@/lib/errors'
 
 /**
  * Sanitizes a storage key/path so it only contains safe characters.
@@ -38,9 +39,13 @@ function sanitizeKey(rawPath: string): string {
 }
 
 // Admin client — bypasses RLS (server-side only)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+if (!supabaseUrl) throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL')
+if (!serviceRoleKey) throw new Error('Missing environment variable: SUPABASE_SERVICE_ROLE_KEY')
 const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl,
+  serviceRoleKey
 )
 
 const ALLOWED_BUCKETS = ['avatars', 'chat-images', 'notes', 'memories'] as const
@@ -142,7 +147,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (err: any) {
-    console.error('Upload error:', err)
+    logError('upload', err)
     return NextResponse.json({ error: err.message ?? 'Upload failed' }, { status: 500 })
   }
 }

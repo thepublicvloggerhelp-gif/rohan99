@@ -6,6 +6,7 @@ import { ArrowLeft, Trash2, Megaphone, FileText, MessageSquare, Send } from 'luc
 import { createClient } from '@/lib/supabase/client'
 import { formatRelativeTime, getSubjectIcon } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 type Tab = 'announcements' | 'notes' | 'messages'
 
@@ -22,15 +23,18 @@ export default function AdminContentPage() {
 
   useEffect(() => {
     const loadNotes = async () => {
-      const { data } = await supabase.from('notes').select('*, uploader:profiles!uploaded_by(username)').order('created_at', { ascending: false }).limit(50)
+      const { data, error } = await supabase.from('notes').select('*, uploader:profiles!uploaded_by(username)').order('created_at', { ascending: false }).limit(50)
+      if (error) { logError('admin content notes load', error); toast.error(getErrorMessage(error)) }
       if (data) setNotes(data)
     }
     const loadMessages = async () => {
-      const { data } = await supabase.from('messages').select('*, sender:profiles!sender_id(username), channel:channels(name)').eq('is_deleted', false).order('created_at', { ascending: false }).limit(100)
+      const { data, error } = await supabase.from('messages').select('*, sender:profiles!sender_id(username), channel:channels(name)').eq('is_deleted', false).order('created_at', { ascending: false }).limit(100)
+      if (error) { logError('admin content messages load', error); toast.error(getErrorMessage(error)) }
       if (data) setMessages(data)
     }
     const loadUsers = async () => {
-      const { data } = await supabase.from('profiles').select('id, stream').eq('status', 'approved')
+      const { data, error } = await supabase.from('profiles').select('id, stream').eq('status', 'approved')
+      if (error) { logError('admin content users load', error); toast.error(getErrorMessage(error)) }
       if (data) setUsers(data)
     }
     loadNotes(); loadMessages(); loadUsers()
@@ -38,13 +42,15 @@ export default function AdminContentPage() {
 
   const deleteNote = async (noteId: string) => {
     if (!confirm('Delete this note?')) return
-    await supabase.from('notes').delete().eq('id', noteId)
+    const { error } = await supabase.from('notes').delete().eq('id', noteId)
+    if (error) { logError('delete note', error); toast.error(getErrorMessage(error)); return }
     setNotes(prev => prev.filter(n => n.id !== noteId))
     toast.success('Note deleted')
   }
 
   const deleteMessage = async (msgId: string) => {
-    await supabase.from('messages').update({ is_deleted: true }).eq('id', msgId)
+    const { error } = await supabase.from('messages').update({ is_deleted: true }).eq('id', msgId)
+    if (error) { logError('delete message', error); toast.error(getErrorMessage(error)); return }
     setMessages(prev => prev.filter(m => m.id !== msgId))
     toast.success('Message deleted')
   }
@@ -62,13 +68,29 @@ export default function AdminContentPage() {
       if (error) { toast.error(error.message); return }
 
       // Also post to #announcements channel
-      const { data: ch } = await supabase.from('channels').select('id').eq('name', 'announcements').single()
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: ch, error: channelError } = await supabase.from('channels').select('id').eq('name', 'announcements').single()
+      if (channelError) {
+        logError('announcement channel lookup', channelError)
+        toast.error(`Announcement partially sent: ${getErrorMessage(channelError)}`)
+        return
+      }
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        const err = authError ?? new Error('Not authenticated')
+        logError('announcement sender lookup', err)
+        toast.error(`Announcement partially sent: ${getErrorMessage(err)}`)
+        return
+      }
       if (ch && user) {
-        await supabase.from('messages').insert({
+        const { error: messageError } = await supabase.from('messages').insert({
           channel_id: ch.id, sender_id: user.id,
           content: `📢 **${annTitle}**\n\n${annMsg}`,
         })
+        if (messageError) {
+          logError('announcement message insert', messageError)
+          toast.error(`Announcement partially sent: ${getErrorMessage(messageError)}`)
+          return
+        }
       }
 
       setAnnTitle(''); setAnnMsg('')

@@ -2,16 +2,28 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 // Admin client — bypasses RLS entirely (server-side only, never exposed to client)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+if (!supabaseUrl) throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL')
+if (!serviceRoleKey) throw new Error('Missing environment variable: SUPABASE_SERVICE_ROLE_KEY')
 const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl,
+  serviceRoleKey
 )
 
 export async function POST(req: NextRequest) {
   try {
-    const { conversationId, content, imageUrl } = await req.json()
+    let body: { conversationId?: string; content?: string; imageUrl?: string }
+    try {
+      body = await req.json()
+    } catch (err) {
+      logError('dm send malformed request body', err)
+      return NextResponse.json({ error: 'Malformed JSON body' }, { status: 400 })
+    }
+    const { conversationId, content, imageUrl } = body
 
     if (!conversationId || (!content?.trim() && !imageUrl)) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -66,7 +78,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ message })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message ?? 'Internal server error' }, { status: 500 })
+  } catch (err) {
+    logError('dm send', err)
+    return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 })
   }
 }

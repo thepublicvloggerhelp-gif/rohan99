@@ -7,6 +7,8 @@ import { X, Search, MessageSquare } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { getInitials } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 interface Props { currentUser: Profile; onClose: () => void }
 
@@ -18,16 +20,35 @@ export function NewDMModal({ currentUser, onClose }: Props) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    supabase.from('profiles').select('*').neq('id', currentUser.id).eq('status', 'approved').then(({ data }) => {
-      if (data) setUsers(data)
-    })
+    void (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .neq('id', currentUser.id)
+          .eq('status', 'approved')
+        if (error) {
+          logError('new DM user load', error)
+          toast.error(getErrorMessage(error))
+          return
+        }
+        if (data) setUsers(data)
+      } catch (err) {
+        logError('new DM user load', err)
+        toast.error(getErrorMessage(err))
+      }
+    })()
   }, [])
 
   const startDM = async (userId: string) => {
     setLoading(true)
     const { data, error } = await supabase.rpc('get_or_create_dm', { user_a: currentUser.id, user_b: userId })
     setLoading(false)
-    if (error) return
+    if (error) {
+      logError('start direct message', error)
+      toast.error(getErrorMessage(error))
+      return
+    }
     onClose()
     router.push(`/dm/${data}`)
   }

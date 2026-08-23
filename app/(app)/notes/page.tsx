@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Note, Profile } from '@/types'
 import { formatRelativeTime, formatFileSize, getSubjectIcon, cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 import Image from 'next/image'
 
 const SUBJECTS = ['All', 'Physics', 'Chemistry', 'Mathematics', 'Biology']
@@ -21,22 +22,32 @@ export default function NotesPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const [{ data: prof }, { data: ns }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('notes').select('*, uploader:profiles!uploaded_by(username, avatar_url)').order('created_at', { ascending: false }),
-      ])
-      if (prof) setProfile(prof)
-      if (ns)   setNotes(ns)
-      setLoading(false)
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+        const [{ data: prof, error: profileError }, { data: ns, error: notesError }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          supabase.from('notes').select('*, uploader:profiles!uploaded_by(username, avatar_url)').order('created_at', { ascending: false }),
+        ])
+        if (profileError) throw profileError
+        if (notesError) throw notesError
+        if (prof) setProfile(prof)
+        if (ns) setNotes(ns)
+      } catch (err) {
+        logError('notes load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
 
   const handleDownload = async (note: Note) => {
     // Increment download count
-    await supabase.from('notes').update({ download_count: note.download_count + 1 }).eq('id', note.id)
+    const { error } = await supabase.from('notes').update({ download_count: note.download_count + 1 }).eq('id', note.id)
+    if (error) logError('increment note download count', error)
     window.open(note.file_url, '_blank')
     toast.success('Download started!')
   }

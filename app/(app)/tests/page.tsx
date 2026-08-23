@@ -6,6 +6,8 @@ import { BookOpen, Clock, Target, ChevronRight, Filter, FileText, CheckCircle2, 
 import { createClient } from '@/lib/supabase/client'
 import { Test, Profile } from '@/types'
 import { getSubjectIcon, cn } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 const STREAMS  = ['All', 'JEE', 'NEET']
 const SUBJECTS = ['All', 'Physics', 'Chemistry', 'Mathematics', 'Biology']
@@ -21,21 +23,31 @@ export default function TestsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const [{ data: prof }, { data: ts }, { data: attempts }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('tests').select('*, question_count:questions(count)').eq('is_published', true).order('created_at', { ascending: false }),
-        supabase.from('test_attempts').select('test_id').eq('user_id', user.id),
-      ])
-      if (prof)     setProfile(prof)
-      if (ts)       setTests(ts.map((t: any) => ({ ...t, question_count: t.question_count?.[0]?.count ?? 0 })))
-      if (attempts) {
-        const map: Record<string, number> = {}
-        attempts.forEach((a: any) => { map[a.test_id] = (map[a.test_id] ?? 0) + 1 })
-        setAttemptMap(map)
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+        const [{ data: prof, error: profileError }, { data: ts, error: testsError }, { data: attempts, error: attemptsError }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          supabase.from('tests').select('*, question_count:questions(count)').eq('is_published', true).order('created_at', { ascending: false }),
+          supabase.from('test_attempts').select('test_id').eq('user_id', user.id),
+        ])
+        if (profileError) throw profileError
+        if (testsError) throw testsError
+        if (attemptsError) throw attemptsError
+        if (prof)     setProfile(prof)
+        if (ts)       setTests(ts.map((t: any) => ({ ...t, question_count: t.question_count?.[0]?.count ?? 0 })))
+        if (attempts) {
+          const map: Record<string, number> = {}
+          attempts.forEach((a: any) => { map[a.test_id] = (map[a.test_id] ?? 0) + 1 })
+          setAttemptMap(map)
+        }
+      } catch (err) {
+        logError('tests load', err)
+        toast.error(getErrorMessage(err))
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     load()
   }, [])

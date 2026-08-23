@@ -12,6 +12,8 @@ import { ChannelSidebar } from '@/components/chat/ChannelSidebar'
 import { CHANNEL_ICONS, getInitials } from '@/lib/utils'
 import { CountdownBanner } from '@/components/chat/CountdownBanner'
 import { usePresence } from '@/lib/presence'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function ChannelChatPage() {
   const params    = useParams()
@@ -38,11 +40,12 @@ export default function ChannelChatPage() {
         return
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
 
       try {
-        const [{ data: prof }, { data: ch }, { data: msgs }] = await Promise.all([
+        const [{ data: prof, error: profileError }, { data: ch, error: channelError }, { data: msgs, error: messagesError }] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
           supabase.from('channels').select('*').eq('id', channelId).single(),
           supabase.from('messages')
@@ -53,18 +56,23 @@ export default function ChannelChatPage() {
             .limit(100),
         ])
 
+        if (profileError) throw profileError
+        if (channelError) throw channelError
+        if (messagesError) throw messagesError
         if (prof)  setProfile(prof)
         if (ch)    setChannel(ch)
         if (msgs)  setMessages(msgs)
 
         // Pinned messages
-        const { data: pins } = await supabase
+        const { data: pins, error: pinsError } = await supabase
           .from('pinned_messages')
           .select('*, message:messages(*, sender:profiles!sender_id(username))')
           .eq('channel_id', channelId)
+        if (pinsError) throw pinsError
         if (pins) setPinned(pins.map((p: any) => p.message).filter(Boolean))
       } catch (err) {
-        console.error('Error loading channel:', err)
+        logError('channel load', err)
+        toast.error(getErrorMessage(err))
       } finally {
         setLoading(false)
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
@@ -82,11 +90,15 @@ export default function ChannelChatPage() {
         filter: `channel_id=eq.${channelId}`,
       }, async payload => {
         if (payload.eventType === 'INSERT') {
-          const { data: msg } = await supabase
+          const { data: msg, error } = await supabase
             .from('messages')
             .select(`*, sender:profiles!sender_id(*), reply_to:messages!reply_to_id(*, sender:profiles!sender_id(*)), reactions:message_reactions(*, user:profiles!user_id(username))`)
             .eq('id', payload.new.id)
             .single()
+          if (error) {
+            logError('realtime message load', error)
+            return
+          }
           if (msg) {
             setMessages(prev => [...prev, msg])
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
@@ -103,11 +115,15 @@ export default function ChannelChatPage() {
         event: '*', schema: 'public', table: 'message_reactions',
       }, async () => {
         // Reload reactions
-        const { data: msgs } = await supabase
+        const { data: msgs, error } = await supabase
           .from('messages')
           .select(`*, sender:profiles!sender_id(*), reply_to:messages!reply_to_id(*, sender:profiles!sender_id(*)), reactions:message_reactions(*, user:profiles!user_id(username))`)
           .eq('channel_id', channelId).eq('is_deleted', false)
           .order('created_at', { ascending: true }).limit(100)
+        if (error) {
+          logError('realtime reaction reload', error)
+          return
+        }
         if (msgs) setMessages(msgs)
       })
       .subscribe()

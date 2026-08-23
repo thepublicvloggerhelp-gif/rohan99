@@ -9,6 +9,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function ProfilePage() {
   const params   = useParams()
@@ -23,15 +25,24 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) { logError('profile auth check', authError); toast.error(getErrorMessage(authError)) }
       if (user) setMyId(user.id)
 
-      const [{ data: prof }, { data: atts }, { data: lb }] = await Promise.all([
+      const [{ data: prof, error: profileError }, { data: atts, error: attemptsError }, { data: lb, error: leaderboardError }] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
         supabase.from('test_attempts').select('*, test:tests(title, subject)').eq('user_id', userId).order('completed_at', { ascending: false }).limit(10),
         supabase.from('leaderboard').select('rank').eq('user_id', userId).single(),
       ])
 
+      let firstError: unknown = null
+      for (const [context, error] of [['profile', profileError], ['attempts', attemptsError], ['leaderboard', leaderboardError]] as const) {
+        if (error) {
+          logError(`profile ${context} load`, error)
+          if (!firstError) firstError = error
+        }
+      }
+      if (firstError) toast.error(getErrorMessage(firstError))
       if (prof) setProfile(prof)
       if (atts) {
         setAttempts(atts)

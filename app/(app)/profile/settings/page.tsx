@@ -13,6 +13,7 @@ import { uploadFile } from '@/lib/upload'
 import { Profile } from '@/types'
 import { getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const schema = z.object({
   full_name: z.string().min(2, 'Required'),
@@ -40,9 +41,14 @@ export default function ProfileSettingsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) { logError('profile settings auth check', authError); toast.error(getErrorMessage(authError)); setLoading(false); return }
       if (!user) { router.push('/login'); return }
-      const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      const { data: prof, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (error) {
+        logError('profile settings load', error)
+        toast.error(getErrorMessage(error))
+      }
       if (prof) {
         setProfile(prof)
         reset({ full_name: prof.full_name, username: prof.username, bio: prof.bio ?? '', stream: prof.stream })

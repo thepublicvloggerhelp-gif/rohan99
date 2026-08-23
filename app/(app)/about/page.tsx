@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Info, User, Star, GraduationCap } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 import { Profile } from '@/types'
 import { getInitials } from '@/lib/utils'
 
@@ -33,7 +35,8 @@ export default function AboutPage() {
           setMembers(membersList)
         }
       } catch (err) {
-        console.error('Error fetching about page data:', err)
+        logError('about page load', err)
+        toast.error(getErrorMessage(err))
       } finally {
         setLoading(false)
       }

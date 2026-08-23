@@ -8,6 +8,7 @@ import { Memory, MemoryReaction } from '@/types'
 import { getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { getErrorMessage, logError } from '@/lib/errors'
 
 const EMOJIS = ['❤️', '😂', '😮', '😢']
 
@@ -44,6 +45,9 @@ export function MemoryCard({ memory, currentUserId, onDelete }: Props) {
 
       if (!error) {
         setReactions(prev => prev.filter(r => r.user_id !== currentUserId))
+      } else {
+        logError('remove memory reaction', error)
+        toast.error(getErrorMessage(error))
       }
     } else {
       // Upsert reaction (replace any existing one)
@@ -56,6 +60,9 @@ export function MemoryCard({ memory, currentUserId, onDelete }: Props) {
           const without = prev.filter(r => r.user_id !== currentUserId)
           return [...without, { memory_id: memory.id, user_id: currentUserId, emoji }]
         })
+      } else {
+        logError('save memory reaction', error)
+        toast.error(getErrorMessage(error))
       }
     }
   }

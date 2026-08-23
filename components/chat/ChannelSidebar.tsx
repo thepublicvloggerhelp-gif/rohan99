@@ -7,6 +7,7 @@ import { Hash, Megaphone, ChevronDown, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Channel } from '@/types'
 import { cn } from '@/lib/utils'
+import { logError } from '@/lib/errors'
 
 interface Props { currentChannelId: string }
 type CategoryGroup = { name: string; channels: Channel[] }
@@ -17,9 +18,18 @@ export function ChannelSidebar({ currentChannelId }: Props) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
-    supabase.from('channels').select('*').order('category').order('name').then(({ data }) => {
-      if (data) setChannels(data)
-    })
+    void (async () => {
+      try {
+        const { data, error } = await supabase.from('channels').select('*').order('category').order('name')
+        if (error) {
+          logError('channel sidebar load', error)
+          return
+        }
+        if (data) setChannels(data)
+      } catch (err) {
+        logError('channel sidebar load', err)
+      }
+    })()
   }, [])
 
   const groups: CategoryGroup[] = []

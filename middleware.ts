@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { logError } from '@/lib/errors'
 
 function redirectWithCookies(url: URL | string, supabaseResponse: NextResponse) {
   const redirectResponse = NextResponse.redirect(url)
@@ -70,9 +71,21 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for API routes — they handle their own auth
   if (pathname.startsWith('/api/')) return supabaseResponse
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user: authenticatedUser }, error: authError } = await supabase.auth.getUser()
+  const user = authError ? null : authenticatedUser
 
   const publicRoutes = ['/login', '/signup', '/pending']
+  const isProtectedRoute = !publicRoutes.includes(pathname) && pathname !== '/'
+
+  if (authError) {
+    logError('middleware auth session check', authError)
+    if (isProtectedRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('error', 'session_check_failed')
+      return redirectWithCookies(url, supabaseResponse)
+    }
+  }
 
   // Auth routes: redirect authenticated users away
   const authRoutes = ['/login', '/signup']
@@ -84,11 +97,14 @@ export async function middleware(request: NextRequest) {
 
   // Redirect approved users away from pending page
   if (user && pathname === '/pending') {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('status')
       .eq('id', user.id)
       .single()
+    if (profileError && profileError.code !== 'PGRST116') {
+      logError('middleware pending profile check', profileError)
+    }
     if (profile?.status === 'approved') {
       const url = request.nextUrl.clone()
       url.pathname = '/chat'
@@ -97,19 +113,27 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes: require authentication
-  if (!user && !publicRoutes.includes(pathname) && pathname !== '/') {
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return redirectWithCookies(url, supabaseResponse)
   }
 
   // Check approval status for authenticated users
-  if (user && !publicRoutes.includes(pathname) && pathname !== '/') {
-    const { data: profile } = await supabase
+  if (user && isProtectedRoute) {
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('status, role')
       .eq('id', user.id)
       .single()
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      logError('middleware protected profile check', profileError)
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('error', 'profile_check_failed')
+      return redirectWithCookies(url, supabaseResponse)
+    }
 
     if (profile?.status === 'pending' && pathname !== '/pending') {
       const url = request.nextUrl.clone()

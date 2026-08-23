@@ -7,6 +7,8 @@ import { Trophy, CheckCircle, XCircle, Minus, RotateCcw, BarChart3 } from 'lucid
 import { createClient } from '@/lib/supabase/client'
 import { TestAttempt, Question, AttemptAnswer, Test } from '@/types'
 import { cn } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export default function TestResultPage() {
   const params      = useParams()
@@ -24,12 +26,20 @@ export default function TestResultPage() {
   useEffect(() => {
     if (!attemptId) return
     const load = async () => {
-      const [{ data: att }, { data: t }, { data: qs }, { data: ans }] = await Promise.all([
+      const [{ data: att, error: attemptError }, { data: t, error: testError }, { data: qs, error: questionsError }, { data: ans, error: answersError }] = await Promise.all([
         supabase.from('test_attempts').select('*').eq('id', attemptId).single(),
         supabase.from('tests').select('*').eq('id', testId).single(),
         supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
         supabase.from('attempt_answers').select('*').eq('attempt_id', attemptId),
       ])
+      let firstError: unknown = null
+      for (const [context, error] of [['attempt', attemptError], ['test', testError], ['questions', questionsError], ['answers', answersError]] as const) {
+        if (error) {
+          logError(`test result ${context} load`, error)
+          if (!firstError) firstError = error
+        }
+      }
+      if (firstError) toast.error(getErrorMessage(firstError))
       if (att) setAttempt(att)
       if (t)   setTest(t)
       if (qs)  setQuestions(qs)

@@ -5,6 +5,8 @@ import { Bell, Megaphone, FileText, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/types'
 import { formatRelativeTime, cn } from '@/lib/utils'
+import { getErrorMessage, logError } from '@/lib/errors'
+import { toast } from 'sonner'
 
 export function NotificationBell() {
   const supabase = createClient()
@@ -16,15 +18,23 @@ export function NotificationBell() {
     let channel: any
 
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        logError('notification auth check', authError)
+        toast.error(getErrorMessage(authError))
+        return
+      }
       if (!user) return
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20)
-      if (data) {
+      if (error) {
+        logError('notification load', error)
+        toast.error(getErrorMessage(error))
+      } else if (data) {
         setNotifications(data)
         setUnreadCount(data.filter(n => !n.is_read).length)
       }
@@ -49,10 +59,20 @@ export function NotificationBell() {
   }, [])
 
   const markAllRead = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError) {
+      logError('mark notifications auth check', authError)
+      toast.error(getErrorMessage(authError))
+      return
+    }
     if (!user) return
-    await supabase.from('notifications').update({ is_read: true })
+    const { error } = await supabase.from('notifications').update({ is_read: true })
       .eq('user_id', user.id).eq('is_read', false)
+    if (error) {
+      logError('mark all notifications read', error)
+      toast.error(getErrorMessage(error))
+      return
+    }
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     setUnreadCount(0)
   }
