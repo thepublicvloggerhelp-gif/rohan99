@@ -87,7 +87,6 @@ export default function SignupPage() {
           if (profileError) {
             logError('signup avatar profile update', profileError)
             toast.error(getErrorMessage(profileError))
-            return
           }
         }
       }

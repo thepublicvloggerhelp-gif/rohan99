@@ -18,43 +18,45 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-      const [
-        { count: pendingCount, error: pendingCountError },
-        { count: totalUsers, error: totalUsersError },
-        { count: tests, error: testsError },
-        { count: notes, error: notesError },
-        { count: messages, error: messagesError },
-        { data: pendingUsers, error: pendingUsersError },
-      ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('tests').select('*', { count: 'exact', head: true }),
-        supabase.from('notes').select('*', { count: 'exact', head: true }),
-        supabase.from('messages').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
-      ])
+        const [
+          { count: pendingCount, error: pendingCountError },
+          { count: totalUsers, error: totalUsersError },
+          { count: tests, error: testsError },
+          { count: notes, error: notesError },
+          { count: messages, error: messagesError },
+          { data: pendingUsers, error: pendingUsersError },
+        ] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('tests').select('*', { count: 'exact', head: true }),
+          supabase.from('notes').select('*', { count: 'exact', head: true }),
+          supabase.from('messages').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
+        ])
 
-      ;[
-        ['pending user count', pendingCountError],
-        ['total user count', totalUsersError],
-        ['test count', testsError],
-        ['note count', notesError],
-        ['message count', messagesError],
-        ['pending users', pendingUsersError],
-      ].forEach(([context, error]) => {
-        if (error) {
-          logError(`admin ${context}`, error)
-          toast.error(getErrorMessage(error))
+        let firstError: unknown = null
+        for (const [context, error] of [
+          ['pending user count', pendingCountError],
+          ['total user count', totalUsersError],
+          ['test count', testsError],
+          ['note count', notesError],
+          ['message count', messagesError],
+          ['pending users', pendingUsersError],
+        ] as const) {
+          if (error) {
+            logError(`admin ${context}`, error)
+            if (!firstError) firstError = error
+          }
         }
-      })
-      setStats({
-        pending:  pendingCount ?? 0,
-        total:    totalUsers   ?? 0,
-        tests:    tests        ?? 0,
-        notes:    notes        ?? 0,
-        messages: messages     ?? 0,
-      })
-      if (pendingUsers) setPending(pendingUsers)
+        if (firstError) toast.error(getErrorMessage(firstError))
+        setStats({
+          pending:  pendingCount ?? 0,
+          total:    totalUsers   ?? 0,
+          tests:    tests        ?? 0,
+          notes:    notes        ?? 0,
+          messages: messages     ?? 0,
+        })
+        if (pendingUsers) setPending(pendingUsers)
       } catch (err) {
         logError('admin dashboard load', err)
         toast.error(getErrorMessage(err))

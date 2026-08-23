@@ -30,20 +30,20 @@ export default function TakeTestPage() {
   useEffect(() => {
     const load = async () => {
       try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError) throw authError
-      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
-      const [{ data: prof, error: profileError }, { data: t, error: testError }, { data: qs, error: questionsError }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('tests').select('*').eq('id', testId).single(),
-        supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
-      ])
-      if (profileError) throw profileError
-      if (testError) throw testError
-      if (questionsError) throw questionsError
-      if (prof) setProfile(prof)
-      if (t)    { setTest(t); setTimeLeft(t.duration_minutes * 60) }
-      if (qs)   setQuestions(qs)
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+        const [{ data: prof, error: profileError }, { data: t, error: testError }, { data: qs, error: questionsError }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          supabase.from('tests').select('*').eq('id', testId).single(),
+          supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
+        ])
+        if (profileError) throw profileError
+        if (testError) throw testError
+        if (questionsError) throw questionsError
+        if (prof) setProfile(prof)
+        if (t)    { setTest(t); setTimeLeft(t.duration_minutes * 60) }
+        if (qs)   setQuestions(qs)
       } catch (err) {
         logError('test load', err)
         toast.error(getErrorMessage(err))

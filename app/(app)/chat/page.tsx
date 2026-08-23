@@ -34,7 +34,9 @@ export default async function ChatPage() {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-surface-3 p-6 text-center">
       <MessageSquare className="w-12 h-12 text-slate-600 mb-4" />
-      <h3 className="text-slate-200 font-bold text-lg">No Channels Found</h3>
+      <h3 className="text-slate-200 font-bold text-lg">
+        {channelError || firstChannelError ? 'Unable to Load Channels' : 'No Channels Found'}
+      </h3>
       <p className="text-slate-500 text-sm max-w-sm mt-1">
         {channelError || firstChannelError
           ? getErrorMessage(channelError ?? firstChannelError)

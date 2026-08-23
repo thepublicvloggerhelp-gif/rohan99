@@ -45,24 +45,24 @@ export default function MemoriesPage() {
         if (memoriesError) throw memoriesError
         if (prof) setProfile(prof)
         if (mems) {
-        setMemories(mems)
+          setMemories(mems)
 
-        // Pick "Memory of the Day" — random pick, seeded per calendar day
-        // so the same card shows all day but changes next day
-        if (mems.length > 0) {
-          const today = format(new Date(), 'yyyy-MM-dd')
-          const sessionKey = `motd-${today}`
-          const cachedId = sessionStorage.getItem(sessionKey)
-          const found = cachedId ? mems.find(m => m.id === cachedId) : null
-          if (found) {
-            setMotd(found)
-          } else {
-            // Pick random
-            const pick = mems[Math.floor(Math.random() * mems.length)]
-            sessionStorage.setItem(sessionKey, pick.id)
-            setMotd(pick)
+          // Pick "Memory of the Day" — random pick, seeded per calendar day
+          // so the same card shows all day but changes next day
+          if (mems.length > 0) {
+            const today = format(new Date(), 'yyyy-MM-dd')
+            const sessionKey = `motd-${today}`
+            const cachedId = sessionStorage.getItem(sessionKey)
+            const found = cachedId ? mems.find(m => m.id === cachedId) : null
+            if (found) {
+              setMotd(found)
+            } else {
+              // Pick random
+              const pick = mems[Math.floor(Math.random() * mems.length)]
+              sessionStorage.setItem(sessionKey, pick.id)
+              setMotd(pick)
+            }
           }
-        }
         }
       } catch (err) {
         logError('memories load', err)

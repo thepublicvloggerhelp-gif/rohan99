@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       logError("tmdb upstream request", data);
       return NextResponse.json(
-        { error: getErrorMessage(data) },
+        { error: typeof data?.status_message === "string" ? data.status_message : getErrorMessage(data) },
         { status: res.status }
       );
     }

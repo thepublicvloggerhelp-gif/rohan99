@@ -127,7 +127,10 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
         const { error: tagsErr } = await supabase
           .from('memory_tags')
           .insert(tagged.map(uid => ({ memory_id: memRow.id, user_id: uid })))
-        if (tagsErr) throw tagsErr
+        if (tagsErr) {
+          logError('save memory tags', tagsErr)
+          toast.warning(`Memory added, but tagged users could not be saved: ${getErrorMessage(tagsErr)}`)
+        }
       }
       setProgress(100)
       setDone(true)

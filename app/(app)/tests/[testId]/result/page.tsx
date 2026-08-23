@@ -32,12 +32,14 @@ export default function TestResultPage() {
         supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
         supabase.from('attempt_answers').select('*').eq('attempt_id', attemptId),
       ])
+      let firstError: unknown = null
       for (const [context, error] of [['attempt', attemptError], ['test', testError], ['questions', questionsError], ['answers', answersError]] as const) {
         if (error) {
           logError(`test result ${context} load`, error)
-          toast.error(getErrorMessage(error))
+          if (!firstError) firstError = error
         }
       }
+      if (firstError) toast.error(getErrorMessage(firstError))
       if (att) setAttempt(att)
       if (t)   setTest(t)
       if (qs)  setQuestions(qs)

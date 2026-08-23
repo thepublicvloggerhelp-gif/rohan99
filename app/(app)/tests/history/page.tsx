@@ -18,16 +18,16 @@ export default function TestHistoryPage() {
   useEffect(() => {
     const load = async () => {
       try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError) throw authError
-      if (!user) { toast.error('Your session expired. Please sign in again.'); return }
-      const { data, error } = await supabase.from('test_attempts')
-        .select('*, test:tests(title, subject, stream, chapter)')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(50)
-      if (error) throw error
-      if (data) setAttempts(data)
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError) throw authError
+        if (!user) { toast.error('Your session expired. Please sign in again.'); return }
+        const { data, error } = await supabase.from('test_attempts')
+          .select('*, test:tests(title, subject, stream, chapter)')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: false })
+          .limit(50)
+        if (error) throw error
+        if (data) setAttempts(data)
       } catch (err) {
         logError('test history load', err)
         toast.error(getErrorMessage(err))

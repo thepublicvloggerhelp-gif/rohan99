@@ -35,12 +35,14 @@ export default function ProfilePage() {
         supabase.from('leaderboard').select('rank').eq('user_id', userId).single(),
       ])
 
+      let firstError: unknown = null
       for (const [context, error] of [['profile', profileError], ['attempts', attemptsError], ['leaderboard', leaderboardError]] as const) {
         if (error) {
           logError(`profile ${context} load`, error)
-          toast.error(getErrorMessage(error))
+          if (!firstError) firstError = error
         }
       }
+      if (firstError) toast.error(getErrorMessage(firstError))
       if (prof) setProfile(prof)
       if (atts) {
         setAttempts(atts)
