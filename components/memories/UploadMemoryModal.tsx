@@ -222,7 +222,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                     <p className="text-sm font-semibold text-slate-300">
                       Drop a photo here, or <span className="text-blue-500 underline">browse</span>
                     </p>
-            <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-1.5">JPG, PNG, WebP, GIF up to {BUCKET_LIMITS.memories / 1024 / 1024}MB</p>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-1.5">JPG, PNG, WebP, GIF up to {BUCKET_LIMITS.memories / 1024 / 1024}MB</p>
                   </div>
                 </div>
               )}

@@ -11,7 +11,7 @@ import { MessageInput } from '@/components/chat/MessageInput'
 import { ChannelSidebar } from '@/components/chat/ChannelSidebar'
 import { CHANNEL_ICONS, getInitials } from '@/lib/utils'
 import { CountdownBanner } from '@/components/chat/CountdownBanner'
-import { resolvePresenceStatus, usePresence } from '@/lib/presence'
+import { usePresence } from '@/lib/presence'
 import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
 import { Avatar } from '@/components/ui/Avatar'
 
@@ -201,7 +201,7 @@ export default function ChannelChatPage() {
                       imageClassName="w-full h-full object-cover"
                       containerClassName="relative w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center text-[9px] font-bold text-brand-400 flex-shrink-0 overflow-hidden"
                       fallback={getInitials(user.full_name)[0]}
-                      statusDot={<div className={`absolute -bottom-[1px] -right-[1px] w-2 h-2 status-dot ${resolvePresenceStatus({ status })}`} />}
+                      statusDot={<div className={`absolute -bottom-[1px] -right-[1px] w-2 h-2 status-dot ${status}`} />}
                     />
                     <span className="text-[11px] font-semibold text-slate-300 whitespace-nowrap">{user.username}</span>
                   </div>
@@ -298,7 +298,7 @@ export default function ChannelChatPage() {
                       imageElement="img"
                       imageClassName="w-full h-full object-cover rounded-full"
                       containerClassName="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm"
-                      statusDot={<div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${resolvePresenceStatus({ status })}`} />}
+                      statusDot={<div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${status}`} />}
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-slate-50 truncate">{user.username}</p>

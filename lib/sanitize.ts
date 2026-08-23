@@ -1,3 +1,8 @@
+/**
+ * Sanitizes a storage key/path so it only contains safe characters.
+ * Strips unicode, replaces spaces, removes sequences Supabase/S3 rejects.
+ * Sanitizes the base name and extension separately to preserve the file extension.
+ */
 export function sanitizeKey(rawPath: string): string {
   return rawPath
     .split('/')

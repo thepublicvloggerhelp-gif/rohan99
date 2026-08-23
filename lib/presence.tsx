@@ -13,7 +13,7 @@ export interface PresenceInfo {
 
 export type PresenceStatus = PresenceInfo['status'] | 'offline'
 
-export function resolvePresenceStatus<T>(presence: { status: T } | null | undefined): T | 'offline' {
+export function resolvePresenceStatus(presence: PresenceInfo | null | undefined): PresenceStatus {
   return presence ? presence.status : 'offline'
 }
 

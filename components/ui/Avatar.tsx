@@ -32,7 +32,7 @@ export function Avatar({
   statusDot,
 }: AvatarProps) {
   const avatar = (
-      <div className={containerClassName} style={containerStyle}>
+    <div className={containerClassName} style={containerStyle}>
       {url ? (
         imageElement === 'img' ? (
           <img src={url} alt={alt} className={imageClassName} />
