@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { Trash2, Calendar, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Memory, MemoryReaction } from '@/types'
 import { getInitials, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { Avatar } from '@/components/ui/Avatar'
 
 const EMOJIS = ['❤️', '😂', '😮', '😢']
 
@@ -147,21 +147,14 @@ export function MemoryCard({ memory, currentUserId, onDelete }: Props) {
         <div className="flex items-center justify-between pt-0.5">
           {/* Uploader */}
           <div className="flex items-center gap-1.5 min-w-0">
-            <div className="w-6 h-6 rounded-full overflow-hidden bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-              {uploader?.avatar_url ? (
-                <Image
-                  src={uploader.avatar_url}
-                  alt={uploader.username ?? ''}
-                  width={24}
-                  height={24}
-                  className="object-cover"
-                />
-              ) : (
-                <span className="text-[9px] font-bold text-brand-500">
-                  {getInitials(uploader?.full_name ?? uploader?.username ?? 'U')}
-                </span>
-              )}
-            </div>
+            <Avatar
+              url={uploader?.avatar_url}
+              name={uploader?.full_name ?? uploader?.username ?? 'U'}
+              size={24}
+              alt={uploader?.username ?? ''}
+              containerClassName="w-6 h-6 rounded-full overflow-hidden bg-brand-500/20 flex items-center justify-center flex-shrink-0"
+              fallback={<span className="text-[9px] font-bold text-brand-500">{getInitials(uploader?.full_name ?? uploader?.username ?? 'U')}</span>}
+            />
             <span className="text-[11px] text-slate-500 font-semibold truncate">
               {uploader?.username ?? 'someone'}
             </span>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { ArrowLeft, Upload, Loader2, Save, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -11,8 +10,10 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { Profile } from '@/types'
-import { getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { BUCKET_LIMITS } from '@/lib/upload-constraints'
+import { Avatar } from '@/components/ui/Avatar'
 
 const schema = z.object({
   full_name: z.string().min(2, 'Required'),
@@ -40,9 +41,9 @@ export default function ProfileSettingsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) { router.push('/login'); return }
-      const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      const { data: prof } = await getProfile(supabase, user.id)
       if (prof) {
         setProfile(prof)
         reset({ full_name: prof.full_name, username: prof.username, bio: prof.bio ?? '', stream: prof.stream })
@@ -55,7 +56,7 @@ export default function ProfileSettingsPage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
-    if (f.size > 2 * 1024 * 1024) { toast.error('Max 2MB'); return }
+    if (f.size > BUCKET_LIMITS.avatars) { toast.error('Max 2MB'); return }
     setAvatar(f); setPreview(URL.createObjectURL(f))
   }
 
@@ -111,11 +112,13 @@ export default function ProfileSettingsPage() {
         {/* Avatar */}
         <div className="glass-card rounded-2xl p-6 mb-5 flex items-center gap-5">
           <button type="button" onClick={() => fileRef.current?.click()} className="relative group flex-shrink-0">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-brand-500/50 transition-colors bg-surface-4 flex items-center justify-center text-xl font-bold text-brand-400">
-              {(preview || profile?.avatar_url) ? (
-                <Image src={preview ?? profile?.avatar_url!} alt="Avatar" width={80} height={80} className="object-cover" />
-              ) : getInitials(profile?.full_name ?? 'U')}
-            </div>
+            <Avatar
+              url={preview || profile?.avatar_url}
+              name={profile?.full_name ?? 'U'}
+              size={80}
+              alt="Avatar"
+              containerClassName="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-brand-500/50 transition-colors bg-surface-4 flex items-center justify-center text-xl font-bold text-brand-400"
+            />
             <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Upload className="w-5 h-5 text-white" />
             </div>

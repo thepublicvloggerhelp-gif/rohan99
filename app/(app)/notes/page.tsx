@@ -8,6 +8,9 @@ import { Note, Profile } from '@/types'
 import { formatRelativeTime, formatFileSize, getSubjectIcon, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { SkeletonList } from '@/components/ui/SkeletonList'
+import { Avatar } from '@/components/ui/Avatar'
 
 const SUBJECTS = ['All', 'Physics', 'Chemistry', 'Mathematics', 'Biology']
 
@@ -21,10 +24,10 @@ export default function NotesPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
       const [{ data: prof }, { data: ns }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        getProfile(supabase, user.id),
         supabase.from('notes').select('*, uploader:profiles!uploaded_by(username, avatar_url)').order('created_at', { ascending: false }),
       ])
       if (prof) setProfile(prof)
@@ -96,7 +99,7 @@ export default function NotesPage() {
         {/* Notes grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => <div key={i} className="glass-card rounded-2xl h-44 shimmer" />)}
+            <SkeletonList count={6} itemClassName="glass-card rounded-2xl h-44 shimmer" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-500">
@@ -133,11 +136,13 @@ export default function NotesPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-full bg-surface-4 overflow-hidden">
-                        {(note.uploader as any)?.avatar_url
-                          ? <Image src={(note.uploader as any).avatar_url} alt="" width={20} height={20} className="object-cover" />
-                          : <div className="w-full h-full bg-brand-500/30 flex items-center justify-center text-[8px] font-bold text-brand-400">U</div>}
-                      </div>
+                      <Avatar
+                        url={(note.uploader as any)?.avatar_url}
+                        name={(note.uploader as any)?.username ?? 'U'}
+                        size={20}
+                        containerClassName="w-5 h-5 rounded-full bg-surface-4 overflow-hidden"
+                        fallback={<div className="w-full h-full bg-brand-500/30 flex items-center justify-center text-[8px] font-bold text-brand-400">U</div>}
+                      />
                       <span className="text-xs text-slate-500">{(note.uploader as any)?.username}</span>
                     </div>
                     <button

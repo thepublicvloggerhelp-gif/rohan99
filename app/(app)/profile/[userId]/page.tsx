@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, Trophy, Target, BookOpen, MessageSquare, Edit, Star, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
-import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
+import { formatRelativeTime, getInitials, cn, getStreamBadge } from '@/lib/utils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { Avatar } from '@/components/ui/Avatar'
 
 export default function ProfilePage() {
   const params   = useParams()
@@ -23,11 +24,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (user) setMyId(user.id)
 
       const [{ data: prof }, { data: atts }, { data: lb }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
+        getProfile(supabase, userId),
         supabase.from('test_attempts').select('*, test:tests(title, subject)').eq('user_id', userId).order('completed_at', { ascending: false }).limit(10),
         supabase.from('leaderboard').select('rank').eq('user_id', userId).single(),
       ])
@@ -64,15 +65,14 @@ export default function ProfilePage() {
           <div className="relative z-10 flex items-start gap-6">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10 bg-surface-4">
-                {profile.avatar_url ? (
-                  <Image src={profile.avatar_url} alt={profile.username} width={96} height={96} className="object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-brand-400">
-                    {getInitials(profile.full_name)}
-                  </div>
-                )}
-              </div>
+              <Avatar
+                url={profile.avatar_url}
+                name={profile.full_name}
+                size={96}
+                alt={profile.username}
+                containerClassName="w-24 h-24 rounded-3xl overflow-hidden border-2 border-white/10 bg-surface-4"
+                fallback={<div className="w-full h-full flex items-center justify-center text-2xl font-bold text-brand-400">{getInitials(profile.full_name)}</div>}
+              />
             </div>
 
             {/* Info */}
@@ -90,7 +90,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 mt-3">
-                <span className={cn('badge', profile.stream === 'JEE' ? 'badge-jee' : 'badge-neet')}>
+                <span className={getStreamBadge(profile.stream)}>
                   {profile.stream}
                 </span>
                 {profile.role === 'admin' && <span className="badge badge-admin">ADMIN</span>}

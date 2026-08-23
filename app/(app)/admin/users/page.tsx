@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Search, ShieldBan, Trash2, UserCheck, Filter, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
-import { formatRelativeTime, getInitials, cn } from '@/lib/utils'
+import { formatRelativeTime, cn } from '@/lib/utils'
+import { getStreamBadge } from '@/lib/utils'
+import { SkeletonList } from '@/components/ui/SkeletonList'
+import { Avatar } from '@/components/ui/Avatar'
 import { toast } from 'sonner'
 
 const STATUS_FILTERS = ['all', 'pending', 'approved', 'banned', 'rejected'] as const
@@ -91,20 +93,23 @@ export default function AdminUsersPage() {
 
         {/* Users table */}
         {loading ? (
-          <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="glass-card rounded-xl h-16 shimmer" />)}</div>
+          <SkeletonList wrapperClassName="space-y-3" count={5} itemClassName="glass-card rounded-xl h-16 shimmer" />
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-slate-500">No users found</div>
         ) : (
           <div className="space-y-2">
             {filtered.map(u => (
               <div key={u.id} className="glass-card rounded-2xl px-4 py-3 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400">
-                  {u.avatar_url ? <Image src={u.avatar_url} alt="" width={40} height={40} className="object-cover" /> : getInitials(u.full_name)}
-                </div>
+                <Avatar
+                  url={u.avatar_url}
+                  name={u.full_name}
+                  size={40}
+                  containerClassName="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-slate-200 text-sm">{u.full_name}</p>
-                    <span className={cn('badge text-[10px]', u.stream === 'JEE' ? 'badge-jee' : 'badge-neet')}>{u.stream}</span>
+                    <span className={getStreamBadge(u.stream, 'text-[10px]')}>{u.stream}</span>
                     {u.role === 'admin' && <span className="badge badge-admin text-[10px]">ADMIN</span>}
                   </div>
                   <p className="text-xs text-slate-500">@{u.username} · {u.email}</p>

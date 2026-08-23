@@ -11,7 +11,9 @@ import { MessageInput } from '@/components/chat/MessageInput'
 import { ChannelSidebar } from '@/components/chat/ChannelSidebar'
 import { CHANNEL_ICONS, getInitials } from '@/lib/utils'
 import { CountdownBanner } from '@/components/chat/CountdownBanner'
-import { usePresence } from '@/lib/presence'
+import { resolvePresenceStatus, usePresence } from '@/lib/presence'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { Avatar } from '@/components/ui/Avatar'
 
 export default function ChannelChatPage() {
   const params    = useParams()
@@ -38,12 +40,12 @@ export default function ChannelChatPage() {
         return
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
 
       try {
         const [{ data: prof }, { data: ch }, { data: msgs }] = await Promise.all([
-          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          getProfile(supabase, user.id),
           supabase.from('channels').select('*').eq('id', channelId).single(),
           supabase.from('messages')
             .select(`*, sender:profiles!sender_id(*), reply_to:messages!reply_to_id(*, sender:profiles!sender_id(*)), reactions:message_reactions(*, user:profiles!user_id(username))`)
@@ -191,12 +193,16 @@ export default function ChannelChatPage() {
                     className="flex-shrink-0 flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] rounded-full px-2.5 py-1 hover:bg-white/[0.07] transition-colors"
                   >
                     {/* Mini avatar */}
-                    <div className="relative w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center text-[9px] font-bold text-brand-400 flex-shrink-0 overflow-hidden">
-                      {user.avatar_url
-                        ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                        : getInitials(user.full_name)[0]}
-                      <div className={`absolute -bottom-[1px] -right-[1px] w-2 h-2 status-dot ${status}`} />
-                    </div>
+                    <Avatar
+                      url={user.avatar_url}
+                      name={user.full_name}
+                      size={20}
+                      imageElement="img"
+                      imageClassName="w-full h-full object-cover"
+                      containerClassName="relative w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center text-[9px] font-bold text-brand-400 flex-shrink-0 overflow-hidden"
+                      fallback={getInitials(user.full_name)[0]}
+                      statusDot={<div className={`absolute -bottom-[1px] -right-[1px] w-2 h-2 status-dot ${resolvePresenceStatus({ status })}`} />}
+                    />
                     <span className="text-[11px] font-semibold text-slate-300 whitespace-nowrap">{user.username}</span>
                   </div>
                 ))
@@ -285,14 +291,15 @@ export default function ChannelChatPage() {
                     key={user.id}
                     className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-900/[0.03] transition-all relative cursor-pointer"
                   >
-                    <div className="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm">
-                      {user.avatar_url ? (
-                        <img src={user.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
-                      ) : (
-                        getInitials(user.full_name)
-                      )}
-                      <div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${status}`} />
-                    </div>
+                    <Avatar
+                      url={user.avatar_url}
+                      name={user.full_name}
+                      size={36}
+                      imageElement="img"
+                      imageClassName="w-full h-full object-cover rounded-full"
+                      containerClassName="relative w-9 h-9 rounded-full bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-500 border border-slate-200/60 shadow-sm"
+                      statusDot={<div className={`absolute bottom-[-1.5px] right-[-1.5px] w-3 h-3 status-dot ${resolvePresenceStatus({ status })}`} />}
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-slate-50 truncate">{user.username}</p>
                       <p className="text-[10px] text-slate-400 font-semibold truncate capitalize">

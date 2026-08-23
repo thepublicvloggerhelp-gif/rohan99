@@ -12,6 +12,9 @@ import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { toast } from 'sonner'
 import { formatFileSize, getSubjectIcon } from '@/lib/utils'
+import { getCurrentUser } from '@/lib/supabase/queries'
+import { sanitizeKey } from '@/lib/sanitize'
+import { BUCKET_LIMITS } from '@/lib/upload-constraints'
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics', 'Biology'] as const
 
@@ -35,7 +38,7 @@ export default function UploadNotePage() {
   const onDrop = useCallback((accepted: File[]) => {
     const f = accepted[0]
     if (!f) return
-    if (f.size > 20 * 1024 * 1024) { toast.error('File must be under 20MB'); return }
+    if (f.size > BUCKET_LIMITS.notes) { toast.error('File must be under 20MB'); return }
     setFile(f)
   }, [])
 
@@ -49,32 +52,13 @@ export default function UploadNotePage() {
     if (!file) { toast.error('Please select a file'); return }
     setSending(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) { toast.error('Not authenticated'); return }
 
       const fileType = file.type === 'application/pdf' ? 'pdf' : 'image'
       
       // Sanitize filename on the client side as a double-safety measure
-      const dotIdx = file.name.lastIndexOf('.')
-      let base = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name
-      const ext = dotIdx !== -1 ? file.name.substring(dotIdx + 1) : ''
-      
-      const cleanBase = base
-        .normalize('NFKD')
-        .replace(/[^\x00-\x7F]/g, '')
-        .replace(/\s+/g, '_')
-        .replace(/[^a-zA-Z0-9._\-]/g, '')
-        .replace(/\.{2,}/g, '.')
-        .replace(/^[._-]+|[._-]+$/g, '')
-        .substring(0, 80)
-        
-      const cleanExt = ext
-        .normalize('NFKD')
-        .replace(/[^\x00-\x7F]/g, '')
-        .replace(/[^a-zA-Z0-9]/g, '')
-        .substring(0, 10)
-        
-      const safeFileName = cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase
+      const safeFileName = sanitizeKey(file.name)
       const uploadPath = `${data.subject}/${Date.now()}_${safeFileName}`
 
       let fileUrl: string

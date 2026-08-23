@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, EyeOff, Loader2, Zap, Upload, CheckCircle, FlaskConical, Calculator } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { BUCKET_LIMITS } from '@/lib/upload-constraints'
 import Image from 'next/image'
 
 const schema = z.object({
@@ -41,7 +42,7 @@ export default function SignupPage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) { toast.error('Avatar must be under 2MB'); return }
+    if (file.size > BUCKET_LIMITS.avatars) { toast.error('Avatar must be under 2MB'); return }
     setAvatar(file)
     setPreview(URL.createObjectURL(file))
   }

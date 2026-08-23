@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { BookOpen, Clock, Target, ChevronRight, Filter, FileText, CheckCircle2, Stethoscope, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Test, Profile } from '@/types'
-import { getSubjectIcon, cn } from '@/lib/utils'
+import { getSubjectIcon, getStreamBadge } from '@/lib/utils'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { PillButton } from '@/components/ui/PillButton'
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 const STREAMS  = ['All', 'JEE', 'NEET']
 const SUBJECTS = ['All', 'Physics', 'Chemistry', 'Mathematics', 'Biology']
@@ -21,10 +24,10 @@ export default function TestsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
       const [{ data: prof }, { data: ts }, { data: attempts }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        getProfile(supabase, user.id),
         supabase.from('tests').select('*, question_count:questions(count)').eq('is_published', true).order('created_at', { ascending: false }),
         supabase.from('test_attempts').select('test_id').eq('user_id', user.id),
       ])
@@ -85,32 +88,22 @@ export default function TestsPage() {
         {/* Filters */}
         <div className="flex flex-wrap gap-2 items-center mb-6">
           {STREAMS.map(s => (
-            <button key={s} onClick={() => setStream(s)} id={`filter-stream-${s}`}
-              className={cn('px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
-                stream === s 
-                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand' 
-                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
-              )}>
+            <PillButton key={s} onClick={() => setStream(s)} id={`filter-stream-${s}`} active={stream === s}>
               {s}
-            </button>
+            </PillButton>
           ))}
           <div className="h-6 w-px bg-white/10 mx-2" />
           {SUBJECTS.map(s => (
-            <button key={s} onClick={() => setSubject(s)} id={`filter-subject-${s}`}
-              className={cn('px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
-                subject === s 
-                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand' 
-                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
-              )}>
+            <PillButton key={s} onClick={() => setSubject(s)} id={`filter-subject-${s}`} active={subject === s}>
               {s}
-            </button>
+            </PillButton>
           ))}
         </div>
 
         {/* Test grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[...Array(4)].map((_, i) => <div key={i} className="glass-card rounded-2xl h-40 shimmer" />)}
+            <SkeletonList count={4} itemClassName="glass-card rounded-2xl h-40 shimmer" />
           </div>
         ) : display.length === 0 ? (
           <div className="text-center py-20 text-slate-500">
@@ -126,7 +119,7 @@ export default function TestsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xl">{getSubjectIcon(test.subject)}</span>
-                      <span className={cn('badge', test.stream === 'JEE' ? 'badge-jee' : 'badge-neet')}>{test.stream}</span>
+                      <span className={getStreamBadge(test.stream)}>{test.stream}</span>
                     </div>
                     <h3 className="font-semibold text-slate-200 text-sm leading-tight">{test.title}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">{test.subject} · {test.chapter}</p>

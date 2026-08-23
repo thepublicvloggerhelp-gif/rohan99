@@ -41,6 +41,10 @@ export function getStreamBg(stream: string): string {
   return stream === 'JEE' ? 'bg-indigo-500/20 border-indigo-500/30' : 'bg-green-500/20 border-green-500/30'
 }
 
+export function getStreamBadge(stream: string, extraClasses?: string): string {
+  return cn('badge', stream === 'JEE' ? 'badge-jee' : 'badge-neet', extraClasses)
+}
+
 export function getSubjectIcon(subject: string): React.ReactNode {
   const icons: Record<string, React.ReactNode> = {
     Physics:     <Atom className="w-4 h-4 inline-block text-purple-400" />,

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Info, User, Star, GraduationCap } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
-import { getInitials } from '@/lib/utils'
+import { Avatar } from '@/components/ui/Avatar'
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 export default function AboutPage() {
   const supabase = createClient()
@@ -66,13 +66,13 @@ export default function AboutPage() {
             <div className="space-y-4">
               <div className="h-6 w-32 bg-slate-200 rounded shimmer" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-2xl shimmer" />)}
+                <SkeletonList count={2} itemClassName="h-28 rounded-2xl shimmer" />
               </div>
             </div>
             <div className="space-y-4">
               <div className="h-6 w-32 bg-slate-200 rounded shimmer" />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl shimmer" />)}
+                <SkeletonList count={3} itemClassName="h-28 rounded-2xl shimmer" />
               </div>
             </div>
           </div>
@@ -90,13 +90,13 @@ export default function AboutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {admins.map(admin => (
                     <div key={admin.id} className="glass-card rounded-2xl p-5 flex gap-4 items-start border-yellow-500/30 bg-gradient-to-br from-yellow-500/[0.04] to-transparent shadow-md hover:shadow-lg transition-all duration-300">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-xl font-black text-yellow-600 border border-yellow-500/30">
-                        {admin.avatar_url ? (
-                          <Image src={admin.avatar_url} alt={admin.full_name} width={64} height={64} className="object-cover" />
-                        ) : (
-                          getInitials(admin.full_name)
-                        )}
-                      </div>
+                      <Avatar
+                        url={admin.avatar_url}
+                        name={admin.full_name}
+                        size={64}
+                        alt={admin.full_name}
+                        containerClassName="w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-xl font-black text-yellow-600 border border-yellow-500/30"
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <h3 className="font-extrabold text-slate-800 text-sm md:text-base truncate">{admin.full_name}</h3>
@@ -126,13 +126,13 @@ export default function AboutPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {members.map(member => (
                     <div key={member.id} className="glass-card rounded-2xl p-5 flex flex-col items-center text-center border-slate-200 bg-gradient-to-b from-slate-50 to-transparent hover:border-brand-500/30 hover:shadow-md transition-all duration-300">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-lg font-extrabold text-brand-600 border border-slate-200 mb-3">
-                        {member.avatar_url ? (
-                          <Image src={member.avatar_url} alt={member.full_name} width={56} height={56} className="object-cover" />
-                        ) : (
-                          getInitials(member.full_name)
-                        )}
-                      </div>
+                      <Avatar
+                        url={member.avatar_url}
+                        name={member.full_name}
+                        size={56}
+                        alt={member.full_name}
+                        containerClassName="w-14 h-14 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center text-lg font-extrabold text-brand-600 border border-slate-200 mb-3"
+                      />
                       <h3 className="font-extrabold text-slate-800 text-sm truncate w-full">{member.full_name}</h3>
                       <p className="text-[10px] text-slate-500 font-semibold mt-0.5">@{member.username}</p>
                       

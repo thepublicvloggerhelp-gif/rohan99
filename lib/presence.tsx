@@ -11,6 +11,16 @@ export interface PresenceInfo {
   user: Profile
 }
 
+export type PresenceStatus = PresenceInfo['status'] | 'offline'
+
+export function resolvePresenceStatus<T>(presence: { status: T } | null | undefined): T | 'offline' {
+  return presence ? presence.status : 'offline'
+}
+
+export function getPresenceTextColor(status: PresenceStatus): string {
+  return status === 'online' ? 'text-green-500' : status === 'away' ? 'text-amber-500' : 'text-slate-400'
+}
+
 interface PresenceContextType {
   presenceMap: Record<string, PresenceInfo>
   myStatus: 'online' | 'away'

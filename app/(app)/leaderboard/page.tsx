@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Trophy, Medal, Crown, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LeaderboardEntry, Stream } from '@/types'
-import { getInitials, cn } from '@/lib/utils'
+import { getInitials, cn, getStreamBadge } from '@/lib/utils'
+import { PillButton } from '@/components/ui/PillButton'
+import { SkeletonList } from '@/components/ui/SkeletonList'
+import { Avatar } from '@/components/ui/Avatar'
+import { getCurrentUser } from '@/lib/supabase/queries'
 
 const TABS: { label: string; value: string }[] = [
   { label: 'Overall', value: 'All' },
@@ -23,7 +26,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (user) setMyId(user.id)
 
       const { data } = await supabase
@@ -65,19 +68,14 @@ export default function LeaderboardPage() {
         {/* Tabs */}
         <div className="flex gap-2 justify-center mb-6">
           {TABS.map(t => (
-            <button
+            <PillButton
               key={t.value}
               id={`leaderboard-tab-${t.value}`}
               onClick={() => setTab(t.value)}
-              className={cn(
-                'px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm',
-                tab === t.value
-                  ? 'bg-blue-600 border-blue-700 text-white shadow-brand'
-                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:bg-white/[0.08] hover:text-white'
-              )}
+              active={tab === t.value}
             >
               {t.label}
-            </button>
+            </PillButton>
           ))}
         </div>
 
@@ -91,11 +89,13 @@ export default function LeaderboardPage() {
             ].filter(item => item.e !== undefined).map(({ e, place, scale, color, border, bg, height }) => (
               <div key={e.user_id} className="flex flex-col items-center gap-2">
                 <div className={cn('relative', scale)}>
-                  <div className={cn('w-14 h-14 rounded-xl overflow-hidden border-2 flex items-center justify-center font-bold shadow-md bg-surface-4', border)}>
-                    {e.avatar_url
-                      ? <Image src={e.avatar_url} alt="" width={56} height={56} className="object-cover" />
-                      : <span className="text-brand-400">{getInitials(e.full_name)}</span>}
-                  </div>
+                  <Avatar
+                    url={e.avatar_url}
+                    name={e.full_name}
+                    size={56}
+                    containerClassName={cn('w-14 h-14 rounded-xl overflow-hidden border-2 flex items-center justify-center font-bold shadow-md bg-surface-4', border)}
+                    fallback={<span className="text-brand-400">{getInitials(e.full_name)}</span>}
+                  />
                   {place === 1 && <Crown className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-yellow-500 drop-shadow-md" />}
                 </div>
                 <p className="text-xs font-black text-slate-200 truncate max-w-[80px] text-center">@{e.username}</p>
@@ -112,7 +112,7 @@ export default function LeaderboardPage() {
         {/* Full table */}
         {loading ? (
           <div className="space-y-3">
-            {[...Array(8)].map((_, i) => <div key={i} className="glass-card rounded-xl h-16 shimmer" />)}
+            <SkeletonList count={8} itemClassName="glass-card rounded-xl h-16 shimmer" />
           </div>
         ) : ranked.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
@@ -136,11 +136,12 @@ export default function LeaderboardPage() {
                 <div className="w-8 flex items-center justify-center flex-shrink-0">
                   {rankBadge(e.rank)}
                 </div>
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400">
-                  {e.avatar_url
-                    ? <Image src={e.avatar_url} alt="" width={40} height={40} className="object-cover" />
-                    : getInitials(e.full_name)}
-                </div>
+                <Avatar
+                  url={e.avatar_url}
+                  name={e.full_name}
+                  size={40}
+                  containerClassName="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-slate-200 text-sm truncate">{e.username}</p>
@@ -148,7 +149,7 @@ export default function LeaderboardPage() {
                   </div>
                   <p className="text-xs text-slate-500">{e.full_name}</p>
                 </div>
-                <span className={cn('badge', e.stream === 'JEE' ? 'badge-jee' : 'badge-neet')}>{e.stream}</span>
+                <span className={getStreamBadge(e.stream)}>{e.stream}</span>
                 <div className="text-right flex-shrink-0">
                   <p className="font-bold text-slate-200 text-sm">{e.total_score}</p>
                   <p className="text-xs text-slate-500">{Math.round(Number(e.avg_accuracy))}% acc</p>
