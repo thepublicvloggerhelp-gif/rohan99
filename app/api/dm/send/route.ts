@@ -13,8 +13,18 @@ export async function POST(req: NextRequest) {
   try {
     const { conversationId, content, imageUrl } = await req.json()
 
-    if (!conversationId || (!content?.trim() && !imageUrl)) {
+    if (!conversationId || typeof conversationId !== 'string' || (!content?.trim() && !imageUrl)) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    if (content != null && (typeof content !== 'string' || content.length > 4000)) {
+      return NextResponse.json({ error: 'Invalid message content' }, { status: 400 })
+    }
+
+    // Only accept image URLs served from this project's Supabase public storage
+    const storagePrefix = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`
+    if (imageUrl != null && (typeof imageUrl !== 'string' || !imageUrl.startsWith(storagePrefix))) {
+      return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 })
     }
 
     // Step 1: Get the authenticated user from the request cookies
