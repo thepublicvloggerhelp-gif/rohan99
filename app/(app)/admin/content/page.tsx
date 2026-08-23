@@ -6,6 +6,7 @@ import { ArrowLeft, Trash2, Megaphone, FileText, MessageSquare, Send } from 'luc
 import { createClient } from '@/lib/supabase/client'
 import { formatRelativeTime, getSubjectIcon } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getCurrentUser } from '@/lib/supabase/queries'
 
 type Tab = 'announcements' | 'notes' | 'messages'
 
@@ -63,7 +64,7 @@ export default function AdminContentPage() {
 
       // Also post to #announcements channel
       const { data: ch } = await supabase.from('channels').select('id').eq('name', 'announcements').single()
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (ch && user) {
         await supabase.from('messages').insert({
           channel_id: ch.id, sender_id: user.id,

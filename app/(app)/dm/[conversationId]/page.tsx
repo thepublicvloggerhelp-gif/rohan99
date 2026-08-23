@@ -8,9 +8,11 @@ import { ArrowLeft, Send, Image as ImageIcon, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/upload'
 import { Profile, DirectMessage } from '@/types'
-import { formatMessageTime, getInitials, cn } from '@/lib/utils'
+import { formatMessageTime, cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { usePresence } from '@/lib/presence'
+import { getPresenceTextColor, resolvePresenceStatus, usePresence } from '@/lib/presence'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { Avatar } from '@/components/ui/Avatar'
 
 export default function DMConversationPage() {
   const params         = useParams()
@@ -33,12 +35,11 @@ export default function DMConversationPage() {
     const load = async () => {
       setLoading(true)
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const user = await getCurrentUser(supabase)
         if (!user) return
 
         // Fetch own profile
-        const { data: prof } = await supabase
-          .from('profiles').select('*').eq('id', user.id).single()
+        const { data: prof } = await getProfile(supabase, user.id)
         if (prof) setMe(prof)
 
         // Step 1: Get all participant user_ids for this conversation (simple flat query)
@@ -53,11 +54,7 @@ export default function DMConversationPage() {
         const otherUserId = parts?.find((p: any) => p.user_id !== user.id)?.user_id
         if (otherUserId) {
           // Step 3: Fetch the other user's profile separately
-          const { data: otherProf } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', otherUserId)
-            .single()
+          const { data: otherProf } = await getProfile(supabase, otherUserId)
           if (otherProf) setOther(otherProf as Profile)
         }
 
@@ -164,26 +161,25 @@ export default function DMConversationPage() {
         <Link href="/dm" className="btn-ghost p-1.5"><ArrowLeft className="w-4 h-4" /></Link>
         {other && (() => {
           const presence = presenceMap[other.id]
-          const status = presence ? presence.status : 'offline'
+          const status = resolvePresenceStatus(presence)
 
           return (
             <Link href={`/profile/${other.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               {/* Avatar relative wrapper */}
-              <div className="relative flex-shrink-0">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex items-center justify-center text-xs font-bold text-brand-400 border border-slate-200/60 shadow-sm animate-fade-in">
-                  {other.avatar_url
-                    ? <Image src={other.avatar_url} alt="" width={32} height={32} className="object-cover" />
-                    : getInitials(other.full_name)}
-                </div>
-                {/* Status Dot */}
-                <div className={`absolute bottom-[-1px] right-[-1px] w-2.5 h-2.5 status-dot ${status}`} />
-              </div>
+              <Avatar
+                url={other.avatar_url}
+                name={other.full_name}
+                size={32}
+                wrapperClassName="relative flex-shrink-0"
+                containerClassName="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex items-center justify-center text-xs font-bold text-brand-400 border border-slate-200/60 shadow-sm animate-fade-in"
+                statusDot={<div className={`absolute bottom-[-1px] right-[-1px] w-2.5 h-2.5 status-dot ${status}`} />}
+              />
               <div>
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-semibold text-slate-200">{other.username}</p>
                   <span className={cn(
                     'text-[9px] font-bold flex items-center gap-0.5 capitalize',
-                    status === 'online' ? 'text-green-500' : status === 'away' ? 'text-amber-500' : 'text-slate-400'
+                    getPresenceTextColor(status)
                   )}>
                     ● {status}
                   </span>
@@ -216,11 +212,12 @@ export default function DMConversationPage() {
             const isMe = m.sender_id === me?.id
             return (
               <div key={m.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-brand-400">
-                  {m.sender?.avatar_url
-                    ? <Image src={m.sender.avatar_url} alt="" width={32} height={32} className="object-cover" />
-                    : getInitials(m.sender?.full_name ?? 'U')}
-                </div>
+                <Avatar
+                  url={m.sender?.avatar_url}
+                  name={m.sender?.full_name ?? 'U'}
+                  size={32}
+                  containerClassName="w-8 h-8 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-brand-400"
+                />
                 <div className={`max-w-[75%] flex flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
                   {m.content?.trim() && (
                     <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed break-words ${

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Test, Question, Profile } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
 
 type Answers = Record<string, 'A' | 'B' | 'C' | 'D'>
 
@@ -28,10 +29,10 @@ export default function TakeTestPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
       const [{ data: prof }, { data: t }, { data: qs }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        getProfile(supabase, user.id),
         supabase.from('tests').select('*').eq('id', testId).single(),
         supabase.from('questions').select('*').eq('test_id', testId).order('order_index'),
       ])

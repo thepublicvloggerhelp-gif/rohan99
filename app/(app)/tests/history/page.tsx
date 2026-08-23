@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { TestAttempt } from '@/types'
 import { formatRelativeTime, getSubjectIcon, cn } from '@/lib/utils'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getCurrentUser } from '@/lib/supabase/queries'
 
 export default function TestHistoryPage() {
   const supabase = createClient()
@@ -15,7 +16,7 @@ export default function TestHistoryPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
       const { data } = await supabase.from('test_attempts')
         .select('*, test:tests(title, subject, stream, chapter)')

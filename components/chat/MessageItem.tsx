@@ -6,8 +6,9 @@ import Link from 'next/link'
 import { Reply, Trash2, SmilePlus, Pin } from 'lucide-react'
 import { Message } from '@/types'
 import { createClient } from '@/lib/supabase/client'
-import { formatMessageTime, getInitials, cn } from '@/lib/utils'
+import { formatMessageTime, cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface Props {
   message:          Message
@@ -68,11 +69,13 @@ export function MessageItem({
       <div className="flex-shrink-0 w-10">
         {!isContinuation ? (
           <Link href={`/profile/${message.sender_id}`}>
-            <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center text-xs font-black text-blue-400 hover:ring-2 ring-blue-500/40 transition-all">
-              {sender?.avatar_url
-                ? <Image src={sender.avatar_url} alt={sender.username} width={36} height={36} className="object-cover" />
-                : getInitials(sender?.full_name ?? 'U')}
-            </div>
+            <Avatar
+              url={sender?.avatar_url}
+              name={sender?.full_name ?? 'U'}
+              size={36}
+              alt={sender?.username}
+              containerClassName="w-9 h-9 rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center text-xs font-black text-blue-400 hover:ring-2 ring-blue-500/40 transition-all"
+            />
           </Link>
         ) : null}
       </div>

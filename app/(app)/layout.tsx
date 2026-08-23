@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Hash, MessageSquare, BookOpen, Trophy, FileText, User,
   ShieldCheck, LogOut, Menu, X, ChevronRight, Settings,
   Zap, Bell, Inbox, Info, Images
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { Avatar } from '@/components/ui/Avatar'
 import { Profile, Channel } from '@/types'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { cn } from '@/lib/utils'
@@ -38,9 +39,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      const { data } = await getProfile(supabase, user.id)
       if (data) setProfile(data)
       const { data: ch } = await supabase.from('channels').select('*').order('category').order('name')
       if (ch) setChannels(ch)
@@ -156,15 +157,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 title="My Profile"
                 className="group relative flex items-center justify-center"
               >
-                <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/[0.1] hover:border-blue-500/50 transition-colors" style={{ background: 'var(--bg-elevated)' }}>
-                  {profile?.avatar_url ? (
-                    <Image src={profile.avatar_url} alt="Avatar" width={36} height={36} className="object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-600/20 text-blue-400 text-sm font-black">
-                      {profile?.username?.[0]?.toUpperCase() ?? 'U'}
-                    </div>
-                  )}
-                </div>
+                <Avatar
+                  url={profile?.avatar_url}
+                  name={profile?.username ?? 'U'}
+                  size={36}
+                  alt="Avatar"
+                  containerClassName="w-9 h-9 rounded-xl overflow-hidden border border-white/[0.1] hover:border-blue-500/50 transition-colors"
+                  containerStyle={{ background: 'var(--bg-elevated)' }}
+                  fallback={<div className="w-full h-full flex items-center justify-center bg-blue-600/20 text-blue-400 text-sm font-black">{profile?.username?.[0]?.toUpperCase() ?? 'U'}</div>}
+                />
               </Link>
               <button onClick={signOut} id="signout-btn" title="Sign out" className="flex items-center justify-center w-8 h-8 rounded-xl text-slate-600 hover:text-red-400 hover:bg-red-500/15 transition-all duration-150">
                 <LogOut className="w-4 h-4" />

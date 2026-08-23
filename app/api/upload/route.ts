@@ -1,81 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createAdminClient, getAuthenticatedUser } from '@/lib/supabase/route'
+import { ALLOWED_BUCKETS, ALLOWED_TYPES, BUCKET_LIMITS, type Bucket } from '@/lib/upload-constraints'
+import { sanitizeKey } from '@/lib/sanitize'
 
-/**
- * Sanitizes a storage key/path so it only contains safe characters.
- * Strips unicode, replaces spaces, removes sequences Supabase/S3 rejects.
- * Sanitizes the base name and extension separately to preserve the file extension.
- */
-function sanitizeKey(rawPath: string): string {
-  return rawPath
-    .split('/')
-    .map(segment => {
-      const dotIdx = segment.lastIndexOf('.')
-      let base = dotIdx !== -1 ? segment.substring(0, dotIdx) : segment
-      const ext = dotIdx !== -1 ? segment.substring(dotIdx + 1) : ''
-
-      base = base
-        .normalize('NFKD')
-        .replace(/[^\x00-\x7F]/g, '')   // strip non-ASCII
-        .replace(/\s+/g, '_')            // spaces → underscores
-        .replace(/[^a-zA-Z0-9._\-]/g, '') // keep only safe chars
-        .replace(/\.{2,}/g, '.')          // collapse multiple dots
-        .replace(/^[._-]+|[._-]+$/g, '') // trim leading/trailing punctuation
-        .substring(0, 80)               // limit base name length to 80
-
-      const cleanExt = ext
-        .normalize('NFKD')
-        .replace(/[^\x00-\x7F]/g, '')
-        .replace(/[^a-zA-Z0-9]/g, '')   // extensions should be purely alphanumeric
-        .substring(0, 10)
-
-      return cleanExt ? `${base}.${cleanExt}` : base
-    })
-    .filter(Boolean)
-    .join('/')
-}
-
-// Admin client — bypasses RLS (server-side only)
-const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const ALLOWED_BUCKETS = ['avatars', 'chat-images', 'notes', 'memories'] as const
-type Bucket = typeof ALLOWED_BUCKETS[number]
-
-const BUCKET_LIMITS: Record<Bucket, number> = {
-  'avatars':     2 * 1024 * 1024,   // 2MB
-  'chat-images': 5 * 1024 * 1024,   // 5MB
-  'notes':       20 * 1024 * 1024,  // 20MB
-  'memories':    10 * 1024 * 1024,  // 10MB
-}
-
-const ALLOWED_TYPES: Record<Bucket, string[]> = {
-  'avatars':     ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-  'chat-images': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-  'notes':       ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
-  'memories':    ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
-}
+const adminSupabase = createAdminClient()
 
 export async function POST(req: NextRequest) {
   try {
-    // Authenticate user
-    const cookieStore = cookies()
-    const userSupabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) { return cookieStore.get(name)?.value },
-          set() {},
-          remove() {},
-        },
-      }
-    )
-    const { data: { user }, error: authError } = await userSupabase.auth.getUser()
+    const { user, error: authError } = await getAuthenticatedUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }

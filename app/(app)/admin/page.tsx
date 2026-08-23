@@ -6,6 +6,7 @@ import { Users, BookOpen, FileText, ShieldCheck, Bell, TrendingUp, Clock, Info }
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 export default function AdminDashboard() {
   const supabase = createClient()
@@ -122,7 +123,7 @@ export default function AdminDashboard() {
           </div>
 
           {loading ? (
-            <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-14 rounded-xl shimmer" />)}</div>
+            <SkeletonList wrapperClassName="space-y-3" count={3} itemClassName="h-14 rounded-xl shimmer" />
           ) : pending.length === 0 ? (
             <div className="text-center py-8 text-slate-500 text-sm">
               <ShieldCheck className="w-6 h-6 mx-auto mb-2 opacity-50" />

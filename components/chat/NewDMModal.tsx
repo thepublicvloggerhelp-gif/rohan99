@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { X, Search, MessageSquare } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
-import { getInitials } from '@/lib/utils'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface Props { currentUser: Profile; onClose: () => void }
 
@@ -54,9 +53,12 @@ export function NewDMModal({ currentUser, onClose }: Props) {
             {filtered.map(u => (
               <button key={u.id} onClick={() => startDM(u.id)} disabled={loading}
                 className="flex items-center gap-3 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] transition-colors text-left">
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400">
-                  {u.avatar_url ? <Image src={u.avatar_url} alt="" width={36} height={36} className="object-cover" /> : getInitials(u.full_name)}
-                </div>
+                <Avatar
+                  url={u.avatar_url}
+                  name={u.full_name}
+                  size={36}
+                  containerClassName="w-9 h-9 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center text-sm font-bold text-brand-400"
+                />
                 <div>
                   <p className="text-sm font-medium text-slate-200">{u.username}</p>
                   <p className="text-xs text-slate-500">{u.full_name} · {u.stream}</p>

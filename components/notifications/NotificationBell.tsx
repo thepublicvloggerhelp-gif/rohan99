@@ -5,6 +5,7 @@ import { Bell, Megaphone, FileText, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/types'
 import { formatRelativeTime, cn } from '@/lib/utils'
+import { getCurrentUser } from '@/lib/supabase/queries'
 
 export function NotificationBell() {
   const supabase = createClient()
@@ -16,7 +17,7 @@ export function NotificationBell() {
     let channel: any
 
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
       const { data } = await supabase
         .from('notifications')
@@ -49,7 +50,7 @@ export function NotificationBell() {
   }, [])
 
   const markAllRead = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser(supabase)
     if (!user) return
     await supabase.from('notifications').update({ is_read: true })
       .eq('user_id', user.id).eq('is_read', false)

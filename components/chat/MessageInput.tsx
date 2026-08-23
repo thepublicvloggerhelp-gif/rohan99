@@ -8,6 +8,7 @@ import { uploadFile } from '@/lib/upload'
 import { Profile, Message } from '@/types'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { BUCKET_LIMITS } from '@/lib/upload-constraints'
 
 interface Props {
   channelId:      string
@@ -56,7 +57,7 @@ export function MessageInput({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5MB'); return }
+    if (file.size > BUCKET_LIMITS['chat-images']) { toast.error('Image must be under 5MB'); return }
     setImage(file)
     setPreview(URL.createObjectURL(file))
   }

@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import Image from 'next/image'
 import { X, Upload, ImageIcon, Tag, Calendar, FileText, Loader2, CheckCircle, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile, Memory } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { BUCKET_LIMITS } from '@/lib/upload-constraints'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface Props {
   currentUser: Profile
@@ -221,7 +222,7 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                     <p className="text-sm font-semibold text-slate-300">
                       Drop a photo here, or <span className="text-blue-500 underline">browse</span>
                     </p>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-1.5">JPG, PNG, WebP, GIF up to 10MB</p>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mt-1.5">JPG, PNG, WebP, GIF up to {BUCKET_LIMITS.memories / 1024 / 1024}MB</p>
                   </div>
                 </div>
               )}
@@ -312,11 +313,13 @@ export function UploadMemoryModal({ currentUser, onClose, onUploaded }: Props) {
                           tagged.includes(u.id) && 'bg-white/[0.03]'
                         )}
                       >
-                        <div className="w-7 h-7 rounded-lg bg-blue-600/20 flex items-center justify-center text-xs font-bold text-blue-400 overflow-hidden flex-shrink-0">
-                          {u.avatar_url
-                            ? <Image src={u.avatar_url} alt="" width={28} height={28} className="object-cover" />
-                            : u.username[0]?.toUpperCase()}
-                        </div>
+                        <Avatar
+                          url={u.avatar_url}
+                          name={u.username}
+                          size={28}
+                          containerClassName="w-7 h-7 rounded-lg bg-blue-600/20 flex items-center justify-center text-xs font-bold text-blue-400 overflow-hidden flex-shrink-0"
+                          fallback={u.username[0]?.toUpperCase()}
+                        />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-slate-200 truncate">{u.username}</p>
                           <p className="text-[10px] text-slate-500 truncate">{u.full_name}</p>

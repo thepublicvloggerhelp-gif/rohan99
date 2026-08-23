@@ -8,6 +8,8 @@ import { MemoryCard } from '@/components/memories/MemoryCard'
 import { UploadMemoryModal } from '@/components/memories/UploadMemoryModal'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 export default function MemoriesPage() {
   const supabase = createClient()
@@ -21,11 +23,11 @@ export default function MemoriesPage() {
   // ── Load data ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) return
 
       const [{ data: prof }, { data: mems }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        getProfile(supabase, user.id),
         supabase
           .from('memories')
           .select(`
@@ -77,20 +79,6 @@ export default function MemoriesPage() {
   }
 
   // ── Loading skeleton ───────────────────────────────────────────────────────
-  const Skeleton = () => (
-    <div className="masonry-grid">
-      {[...Array(8)].map((_, i) => (
-        <div
-          key={i}
-          className="masonry-item"
-          style={{ height: `${180 + (i % 3) * 80}px` }}
-        >
-          <div className="w-full h-full bg-slate-200 rounded-2xl shimmer" />
-        </div>
-      ))}
-    </div>
-  )
-
   // ── Empty state ────────────────────────────────────────────────────────────
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center px-4">
@@ -190,7 +178,13 @@ export default function MemoriesPage() {
 
         {/* ── Content ────────────────────────────────────────────────────── */}
         {loading ? (
-          <Skeleton />
+          <SkeletonList
+            count={8}
+            wrapperClassName="masonry-grid"
+            itemClassName="masonry-item"
+            itemStyle={i => ({ height: `${180 + (i % 3) * 80}px` })}
+            itemContent={<div className="w-full h-full bg-slate-200 rounded-2xl shimmer" />}
+          />
         ) : memories.length === 0 ? (
           <EmptyState />
         ) : (

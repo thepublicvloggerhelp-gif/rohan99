@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Clock, CheckCircle, Zap, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { getCurrentUser } from '@/lib/supabase/queries'
 
 export default function PendingPage() {
   const router   = useRouter()
@@ -12,7 +13,7 @@ export default function PendingPage() {
 
   useEffect(() => {
     const checkStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (!user) {
         router.push('/login')
         return

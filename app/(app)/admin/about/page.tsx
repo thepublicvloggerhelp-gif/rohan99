@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ArrowLeft, ShieldCheck, Loader2, Save, Search, ToggleLeft, ToggleRight, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types'
-import { getInitials } from '@/lib/utils'
 import { toast } from 'sonner'
+import { Avatar } from '@/components/ui/Avatar'
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 export default function AdminAboutPage() {
   const supabase = createClient()
@@ -179,7 +179,7 @@ export default function AdminAboutPage() {
         {/* Users Configuration List */}
         {loading ? (
           <div className="space-y-3">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl shimmer" />)}
+            <SkeletonList count={4} itemClassName="h-24 rounded-2xl shimmer" />
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="text-center py-16 text-slate-500 text-sm glass-card rounded-2xl">
@@ -205,13 +205,12 @@ export default function AdminAboutPage() {
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     {/* User profile details */}
                     <div className="flex gap-3 items-start min-w-[200px]">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center font-bold text-brand-400 border border-white/10">
-                        {u.avatar_url ? (
-                          <Image src={u.avatar_url} alt="" width={40} height={40} className="object-cover" />
-                        ) : (
-                          getInitials(u.full_name)
-                        )}
-                      </div>
+                      <Avatar
+                        url={u.avatar_url}
+                        name={u.full_name}
+                        size={40}
+                        containerClassName="w-10 h-10 rounded-full overflow-hidden bg-surface-4 flex-shrink-0 flex items-center justify-center font-bold text-brand-400 border border-white/10"
+                      />
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <h3 className="font-semibold text-slate-200 text-sm truncate">{u.full_name}</h3>

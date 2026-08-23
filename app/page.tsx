@@ -8,6 +8,7 @@ import {
   MessageSquare, BookOpen, Trophy, FileText, ArrowRight
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentUser, getProfile } from '@/lib/supabase/queries'
 import { Profile } from '@/types'
 import { CountdownHero } from '@/components/CountdownHero'
 
@@ -19,9 +20,9 @@ export default function LandingPage() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const user = await getCurrentUser(supabase)
         if (user) {
-          const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+          const { data } = await getProfile(supabase, user.id)
           if (data) setProfile(data)
         }
       } catch (e) {

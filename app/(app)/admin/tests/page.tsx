@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { ArrowLeft, Plus, Edit, Trash2, Eye, EyeOff, ChevronDown, ChevronRight, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Test, Question } from '@/types'
-import { getSubjectIcon, cn } from '@/lib/utils'
+import { getSubjectIcon, cn, getStreamBadge } from '@/lib/utils'
 import { toast } from 'sonner'
+import { SkeletonList } from '@/components/ui/SkeletonList'
+import { getCurrentUser } from '@/lib/supabase/queries'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -49,7 +51,7 @@ export default function AdminTestsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const user = await getCurrentUser(supabase)
       if (user) setMyId(user.id)
       const { data } = await supabase.from('tests').select('*').order('created_at', { ascending: false })
       if (data) setTests(data)
@@ -177,7 +179,7 @@ export default function AdminTestsPage() {
 
         {/* Tests list */}
         {loading ? (
-          <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="glass-card rounded-2xl h-20 shimmer" />)}</div>
+          <SkeletonList wrapperClassName="space-y-3" count={3} itemClassName="glass-card rounded-2xl h-20 shimmer" />
         ) : tests.length === 0 ? (
           <div className="text-center py-12 text-slate-500"><BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" /><p>No tests yet</p></div>
         ) : (
@@ -189,7 +191,7 @@ export default function AdminTestsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-slate-200 text-sm truncate">{test.title}</p>
-                      <span className={cn('badge text-[10px]', test.stream === 'JEE' ? 'badge-jee' : 'badge-neet')}>{test.stream}</span>
+                      <span className={getStreamBadge(test.stream, 'text-[10px]')}>{test.stream}</span>
                       {test.is_published
                         ? <span className="badge text-[10px] bg-green-500/20 text-green-400 border-green-500/30">Published</span>
                         : <span className="badge text-[10px] bg-slate-500/20 text-slate-400 border-slate-500/30">Draft</span>}
